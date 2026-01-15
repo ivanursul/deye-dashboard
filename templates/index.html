@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deye Solar Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 5px;
+        }
+
+        .header .status {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .header .status.online {
+            color: #4ade80;
+        }
+
+        .header .status.error {
+            color: #f87171;
+        }
+
+        /* Grid Status Banner */
+        .grid-status-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 24px 40px;
+            margin: 0 auto 30px;
+            max-width: 500px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .grid-status-banner.online {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: #4ade80;
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.2);
+        }
+
+        .grid-status-banner.offline {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(239, 68, 68, 0.5); }
+        }
+
+        .grid-status-icon {
+            font-size: 3rem;
+        }
+
+        .grid-status-text {
+            text-align: left;
+        }
+
+        .grid-status-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .grid-status-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .grid-status-banner.online .grid-status-value {
+            color: #4ade80;
+        }
+
+        .grid-status-banner.offline .grid-status-value {
+            color: #ef4444;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-header .icon {
+            font-size: 1.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+
+        .card-header .btn {
+            margin-left: auto;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .card-header .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .metric {
+            margin-bottom: 16px;
+        }
+
+        .metric:last-child {
+            margin-bottom: 0;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .metric-value .unit {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+
+        .metric-value.positive {
+            color: #4ade80;
+        }
+
+        .metric-value.negative {
+            color: #f87171;
+        }
+
+        .metric-value.neutral {
+            color: #fbbf24;
+        }
+
+        /* Battery gauge */
+        .battery-gauge {
+            margin: 20px 0;
+        }
+
+        .battery-bar {
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .battery-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444 0%, #fbbf24 30%, #4ade80 70%);
+            transition: width 0.5s ease;
+            border-radius: 8px;
+        }
+
+        .battery-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 600;
+            font-size: 1rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .stat .value {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .stat .label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Temperature */
+        .temp-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .temp-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .temp-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .temp-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* Outage History */
+        .outage-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .outage-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .outage-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .outage-item.outage-start {
+            border-left: 3px solid #ef4444;
+        }
+
+        .outage-item.outage-end {
+            border-left: 3px solid #4ade80;
+        }
+
+        .outage-icon {
+            font-size: 1.2rem;
+        }
+
+        .outage-details {
+            flex: 1;
+        }
+
+        .outage-time {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .outage-info {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .outage-duration {
+            font-size: 0.85rem;
+            color: #fbbf24;
+            font-weight: 500;
+        }
+
+        .no-outages {
+            text-align: center;
+            color: #64748b;
+            padding: 20px;
+        }
+
+        /* Notification permission button */
+        .notification-setup {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .notification-setup.hidden {
+            display: none;
+        }
+
+        .notification-setup button {
+            padding: 8px 16px;
+            background: #fbbf24;
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* ===== ANIMATIONS ===== */
+
+        /* Solar animation - glowing sun when producing */
+        .card.solar-active {
+            border-color: rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.2);
+        }
+
+        .card.solar-active .icon {
+            animation: sun-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes sun-pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
+            }
+            50% {
+                transform: scale(1.2);
+                filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.8));
+            }
+        }
+
+        /* Battery charging animation - flowing energy */
+        .battery-bar.charging {
+            overflow: hidden;
+        }
+
+        .battery-bar.charging::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(74, 222, 128, 0.4),
+                transparent
+            );
+            animation: charge-flow 1.5s linear infinite;
+        }
+
+        @keyframes charge-flow {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Battery discharging animation */
+        .battery-bar.discharging .battery-fill {
+            animation: discharge-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes discharge-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .card.battery-charging {
+            border-color: rgba(74, 222, 128, 0.5);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.15);
+        }
+
+        .card.battery-discharging {
+            border-color: rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+        }
+
+        .card.battery-charging .icon,
+        .card.battery-discharging .icon {
+            animation: battery-bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes battery-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Grid electricity animation */
+        .card.grid-active {
+            border-color: rgba(96, 165, 250, 0.5);
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
+        }
+
+        .card.grid-active .icon {
+            animation: electricity-zap 0.5s ease-in-out infinite;
+        }
+
+        @keyframes electricity-zap {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 3px rgba(96, 165, 250, 0.5));
+            }
+            25% {
+                transform: scale(1.1) rotate(-5deg);
+                filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.8));
+            }
+            75% {
+                transform: scale(1.1) rotate(5deg);
+                filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.8));
+            }
+        }
+
+        /* Load/consumption animation */
+        .card.load-active {
+            border-color: rgba(248, 113, 113, 0.4);
+            box-shadow: 0 0 20px rgba(248, 113, 113, 0.1);
+        }
+
+        .card.load-high {
+            border-color: rgba(248, 113, 113, 0.6);
+            animation: load-warning 1s ease-in-out infinite;
+        }
+
+        @keyframes load-warning {
+            0%, 100% { box-shadow: 0 0 20px rgba(248, 113, 113, 0.2); }
+            50% { box-shadow: 0 0 35px rgba(248, 113, 113, 0.4); }
+        }
+
+        .card.load-active .icon {
+            animation: home-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes home-glow {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(248, 113, 113, 0.3)); }
+            50% { filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.6)); }
+        }
+
+        /* Temperature warning animation */
+        .card.temp-warning .temp-value {
+            color: #f87171;
+            animation: temp-flash 1s ease-in-out infinite;
+        }
+
+        @keyframes temp-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Phase Analytics */
+        .phase-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .phase-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .phase-label {
+            width: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .phase-label.l1 { color: #ef4444; }
+        .phase-label.l2 { color: #fbbf24; }
+        .phase-label.l3 { color: #3b82f6; }
+
+        .phase-bar-track {
+            flex: 1;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phase-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .phase-bar-fill.l1 { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .phase-bar-fill.l2 { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .phase-bar-fill.l3 { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+        .phase-bar-text {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .phase-value {
+            width: 70px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Phase daily stats table */
+        .phase-stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .phase-stats-table th {
+            text-align: left;
+            padding: 8px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .phase-stats-table td {
+            padding: 8px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .phase-stats-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .phase-pct {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .phase-pct.l1 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .phase-pct.l2 { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .phase-pct.l3 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+
+        .phase-pct.highest {
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .phase-voltage {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .voltage-item {
+            text-align: center;
+        }
+
+        .voltage-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .voltage-label {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Grid status icon animations */
+        .grid-status-banner.online .grid-status-icon {
+            animation: bolt-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bolt-pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.5));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 15px rgba(74, 222, 128, 0.8));
+            }
+        }
+
+        .grid-status-banner.offline .grid-status-icon {
+            animation: bolt-shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes bolt-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        /* Smooth transitions for cards */
+        .card {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-header .icon {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .metric-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Debug Panel */
+        .debug-toggle {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+            z-index: 999;
+        }
+
+        .debug-toggle:hover {
+            opacity: 1;
+        }
+
+        .debug-toggle::after {
+            content: '‹';
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .debug-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: rgba(20, 20, 40, 0.98);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .debug-panel.open {
+            right: 0;
+        }
+
+        .debug-panel h3 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .debug-panel .close-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .debug-panel .close-btn:hover {
+            color: #fff;
+        }
+
+        .debug-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .debug-section label {
+            display: block;
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+        }
+
+        .debug-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .debug-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .debug-btn.danger {
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #f87171;
+        }
+
+        .debug-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .debug-info {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Deye Solar Dashboard</h1>
+        <div class="status" id="status">Connecting...</div>
+    </div>
+
+    <!-- Notification Permission Request -->
+    <div class="notification-setup" id="notification-setup">
+        <span>Enable notifications to get alerts during power outages</span>
+        <button onclick="requestNotificationPermission()">Enable Alerts</button>
+    </div>
+
+    <!-- Grid Status Banner -->
+    <div class="grid-status-banner" id="grid-banner">
+        <div class="grid-status-icon" id="grid-status-icon">⚡</div>
+        <div class="grid-status-text">
+            <div class="grid-status-label" id="grid-status-label">Grid Status</div>
+            <div class="grid-status-value" id="grid-status-value">Checking...</div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Solar Production -->
+        <div class="card" id="solar-card">
+            <div class="card-header">
+                <span class="icon">☀️</span>
+                <h2>Solar Production</h2>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Total PV Power</div>
+                <div class="metric-value positive" id="pv-total">--<span class="unit">W</span></div>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="value" id="pv1-power">--</div>
+                    <div class="label">PV1 (W)</div>
+                </div>
+                <div class="stat">
+                    <div class="value" id="pv2-power">--</div>
+                    <div class="label">PV2 (W)</div>
+                </div>
+            </div>
+            <div class="stat" style="margin-top: 16px;">
+                <div class="value" id="daily-pv">--</div>
+                <div class="label">Today's Generation (kWh)</div>
+            </div>
+        </div>
+
+        <!-- Battery -->
+        <div class="card" id="battery-card">
+            <div class="card-header">
+                <span class="icon">🔋</span>
+                <h2>Battery</h2>
+            </div>
+            <div class="battery-gauge">
+                <div class="battery-bar">
+                    <div class="battery-fill" id="battery-fill" style="width: 0%"></div>
+                    <div class="battery-text" id="battery-soc">--%</div>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="value" id="battery-voltage">--</div>
+                    <div class="label">Voltage (V)</div>
+                </div>
+                <div class="stat">
+                    <div class="value" id="battery-current">--</div>
+                    <div class="label">Current (A)</div>
+                </div>
+            </div>
+            <div class="stat" style="margin-top: 16px;">
+                <div class="value" id="battery-power">--</div>
+                <div class="label" id="battery-status">Power (W)</div>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="card" id="grid-card">
+            <div class="card-header">
+                <span class="icon">⚡</span>
+                <h2>Grid</h2>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Grid Power</div>
+                <div class="metric-value" id="grid-power">--<span class="unit">W</span></div>
+            </div>
+            <div class="stat">
+                <div class="value" id="grid-voltage">--</div>
+                <div class="label">Voltage (V)</div>
+            </div>
+            <div class="stats-row" style="margin-top: 16px;">
+                <div class="stat">
+                    <div class="value" id="daily-import">--</div>
+                    <div class="label">Import (kWh)</div>
+                </div>
+                <div class="stat">
+                    <div class="value" id="daily-export">--</div>
+                    <div class="label">Export (kWh)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load/Consumption -->
+        <div class="card" id="load-card">
+            <div class="card-header">
+                <span class="icon">🏠</span>
+                <h2>Home Consumption</h2>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Current Load</div>
+                <div class="metric-value neutral" id="load-power">--<span class="unit">W</span></div>
+            </div>
+            <div class="stat" style="margin-top: 16px;">
+                <div class="value" id="daily-load">--</div>
+                <div class="label">Today's Usage (kWh)</div>
+            </div>
+        </div>
+
+        <!-- Temperature -->
+        <div class="card" id="temp-card">
+            <div class="card-header">
+                <span class="icon">🌡️</span>
+                <h2>Temperature</h2>
+            </div>
+            <div class="temp-row">
+                <div class="temp-item">
+                    <div class="temp-value" id="dc-temp">--°C</div>
+                    <div class="temp-label">DC Transformer</div>
+                </div>
+                <div class="temp-item">
+                    <div class="temp-value" id="heatsink-temp">--°C</div>
+                    <div class="temp-label">Heat Sink</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase Load (Real-time) -->
+        <div class="card" id="phase-card">
+            <div class="card-header">
+                <span class="icon">📊</span>
+                <h2>Load per Phase</h2>
+            </div>
+            <div class="phase-bars">
+                <div class="phase-bar-item">
+                    <span class="phase-label l1">L1</span>
+                    <div class="phase-bar-track">
+                        <div class="phase-bar-fill l1" id="phase-bar-l1" style="width: 0%"></div>
+                        <span class="phase-bar-text" id="phase-pct-l1">0%</span>
+                    </div>
+                    <span class="phase-value" id="phase-l1">-- W</span>
+                </div>
+                <div class="phase-bar-item">
+                    <span class="phase-label l2">L2</span>
+                    <div class="phase-bar-track">
+                        <div class="phase-bar-fill l2" id="phase-bar-l2" style="width: 0%"></div>
+                        <span class="phase-bar-text" id="phase-pct-l2">0%</span>
+                    </div>
+                    <span class="phase-value" id="phase-l2">-- W</span>
+                </div>
+                <div class="phase-bar-item">
+                    <span class="phase-label l3">L3</span>
+                    <div class="phase-bar-track">
+                        <div class="phase-bar-fill l3" id="phase-bar-l3" style="width: 0%"></div>
+                        <span class="phase-bar-text" id="phase-pct-l3">0%</span>
+                    </div>
+                    <span class="phase-value" id="phase-l3">-- W</span>
+                </div>
+            </div>
+            <div class="phase-voltage">
+                <div class="voltage-item">
+                    <div class="voltage-value" id="voltage-l1">--V</div>
+                    <div class="voltage-label">L1 Voltage</div>
+                </div>
+                <div class="voltage-item">
+                    <div class="voltage-value" id="voltage-l2">--V</div>
+                    <div class="voltage-label">L2 Voltage</div>
+                </div>
+                <div class="voltage-item">
+                    <div class="voltage-value" id="voltage-l3">--V</div>
+                    <div class="voltage-label">L3 Voltage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase Daily Analytics -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📈</span>
+                <h2>Daily Phase Analytics</h2>
+                <button class="btn" onclick="clearPhaseStats()">Clear</button>
+            </div>
+            <div id="phase-stats-container">
+                <table class="phase-stats-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>L1</th>
+                            <th>L2</th>
+                            <th>L3</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="phase-stats-body">
+                        <tr><td colspan="5" style="text-align:center; color:#64748b;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Outage History -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">📋</span>
+                <h2>Outage History</h2>
+                <button class="btn" onclick="clearOutageHistory()">Clear</button>
+            </div>
+            <div class="outage-list" id="outage-list">
+                <div class="no-outages">No outages recorded</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Debug Toggle Button -->
+    <button class="debug-toggle" onclick="toggleDebugPanel()" title="Debug Panel"></button>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debug-panel">
+        <h3>
+            Debug Panel
+            <button class="close-btn" onclick="toggleDebugPanel()">&times;</button>
+        </h3>
+
+        <div class="debug-section">
+            <label>Alerts</label>
+            <button class="debug-btn" onclick="testOutageAlert()">Test Outage Alert</button>
+            <button class="debug-btn" onclick="testRestoreAlert()">Test Restore Alert</button>
+        </div>
+
+        <div class="debug-section">
+            <label>Data</label>
+            <button class="debug-btn" onclick="clearOutageHistory()">Clear Outage History</button>
+            <button class="debug-btn" onclick="clearPhaseStats()">Clear Phase Stats</button>
+        </div>
+
+        <div class="debug-section">
+            <label>Last API Response</label>
+            <div class="debug-info" id="debug-last-data">No data yet</div>
+        </div>
+    </div>
+
+    <script>
+        // Debug panel
+        function toggleDebugPanel() {
+            document.getElementById('debug-panel').classList.toggle('open');
+        }
+
+        function testOutageAlert() {
+            speak('Attention. Grid power is currently unavailable.');
+            showNotification('Power Outage', 'Grid electricity is now offline.');
+        }
+
+        function testRestoreAlert() {
+            speak('Grid power has been restored.');
+            showNotification('Power Restored', 'Grid electricity is back online.');
+        }
+
+        // Track grid state
+        let lastGridOnline = null;
+        let notificationsEnabled = false;
+
+
+        // Check notification permission on load
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                notificationsEnabled = true;
+                document.getElementById('notification-setup').classList.add('hidden');
+            } else if (Notification.permission === 'denied') {
+                document.getElementById('notification-setup').classList.add('hidden');
+            }
+        } else {
+            document.getElementById('notification-setup').classList.add('hidden');
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationsEnabled = true;
+                        document.getElementById('notification-setup').classList.add('hidden');
+                        showNotification('Notifications Enabled', 'You will be alerted during power outages.');
+                    }
+                });
+            }
+        }
+
+
+        function showNotification(title, body) {
+            if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: body,
+                    icon: '⚡',
+                    requireInteraction: true
+                });
+            }
+        }
+
+        function speak(message) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.rate = 0.85;
+                utterance.pitch = 0.9;
+                utterance.volume = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function formatDuration(seconds) {
+            if (seconds < 60) {
+                return Math.round(seconds) + ' seconds';
+            } else if (seconds < 3600) {
+                return Math.round(seconds / 60) + ' minutes';
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const mins = Math.round((seconds % 3600) / 60);
+                return hours + 'h ' + mins + 'm';
+            }
+        }
+
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString();
+        }
+
+        async function recordOutageEvent(type, voltage) {
+            const timestamp = new Date().toISOString();
+            await fetch('/api/outages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, timestamp, voltage })
+            });
+            loadOutageHistory();
+        }
+
+        async function loadOutageHistory() {
+            try {
+                const response = await fetch('/api/outages');
+                const history = await response.json();
+                renderOutageHistory(history);
+            } catch (e) {
+                console.error('Failed to load outage history:', e);
+            }
+        }
+
+        function renderOutageHistory(history) {
+            const container = document.getElementById('outage-list');
+
+            // Filter to show only "start" events (which contain duration info)
+            const outages = history.filter(e => e.type === 'start').reverse();
+
+            if (outages.length === 0) {
+                container.innerHTML = '<div class="no-outages">No outages recorded</div>';
+                return;
+            }
+
+            container.innerHTML = outages.map(outage => {
+                const hasEnded = outage.duration !== undefined;
+                const durationText = hasEnded ? formatDuration(outage.duration) : 'Ongoing...';
+                const endTime = hasEnded ? formatTime(outage.end_timestamp) : '';
+
+                return `
+                    <div class="outage-item ${hasEnded ? 'outage-end' : 'outage-start'}">
+                        <div class="outage-icon">${hasEnded ? '✅' : '🔴'}</div>
+                        <div class="outage-details">
+                            <div class="outage-time">${formatTime(outage.timestamp)}</div>
+                            <div class="outage-info">${hasEnded ? 'Restored: ' + endTime : 'Power outage in progress'}</div>
+                        </div>
+                        <div class="outage-duration">${durationText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function clearOutageHistory() {
+            if (confirm('Clear all outage history?')) {
+                await fetch('/api/outages/clear', { method: 'POST' });
+                loadOutageHistory();
+            }
+        }
+
+        // Phase statistics
+        async function loadPhaseStats() {
+            try {
+                const response = await fetch('/api/phase-stats');
+                const stats = await response.json();
+                renderPhaseStats(stats);
+            } catch (e) {
+                console.error('Failed to load phase stats:', e);
+            }
+        }
+
+        function renderPhaseStats(stats) {
+            const tbody = document.getElementById('phase-stats-body');
+
+            if (stats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#64748b;">No data yet. Keep the dashboard running to collect data.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = stats.map(day => {
+                const maxPct = Math.max(day.l1_pct, day.l2_pct, day.l3_pct);
+                const l1Highest = day.l1_pct === maxPct ? 'highest' : '';
+                const l2Highest = day.l2_pct === maxPct ? 'highest' : '';
+                const l3Highest = day.l3_pct === maxPct ? 'highest' : '';
+
+                return `
+                    <tr>
+                        <td>${day.date}</td>
+                        <td>
+                            <span class="phase-pct l1 ${l1Highest}">${day.l1_pct}%</span>
+                            <br><small style="color:#64748b">${day.l1_kwh} kWh</small>
+                        </td>
+                        <td>
+                            <span class="phase-pct l2 ${l2Highest}">${day.l2_pct}%</span>
+                            <br><small style="color:#64748b">${day.l2_kwh} kWh</small>
+                        </td>
+                        <td>
+                            <span class="phase-pct l3 ${l3Highest}">${day.l3_pct}%</span>
+                            <br><small style="color:#64748b">${day.l3_kwh} kWh</small>
+                        </td>
+                        <td><strong>${day.total_kwh}</strong> kWh</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function clearPhaseStats() {
+            if (confirm('Clear all phase statistics?')) {
+                await fetch('/api/phase-stats/clear', { method: 'POST' });
+                loadPhaseStats();
+            }
+        }
+
+        function updatePhaseDisplay(data) {
+            if (!data.load_l1) return;
+
+            const l1 = data.load_l1 || 0;
+            const l2 = data.load_l2 || 0;
+            const l3 = data.load_l3 || 0;
+            const total = l1 + l2 + l3;
+
+            // Calculate percentages
+            const l1Pct = total > 0 ? (l1 / total * 100).toFixed(0) : 0;
+            const l2Pct = total > 0 ? (l2 / total * 100).toFixed(0) : 0;
+            const l3Pct = total > 0 ? (l3 / total * 100).toFixed(0) : 0;
+
+            // Update bars (width based on percentage of total)
+            document.getElementById('phase-bar-l1').style.width = l1Pct + '%';
+            document.getElementById('phase-bar-l2').style.width = l2Pct + '%';
+            document.getElementById('phase-bar-l3').style.width = l3Pct + '%';
+
+            // Update percentages
+            document.getElementById('phase-pct-l1').textContent = l1Pct + '%';
+            document.getElementById('phase-pct-l2').textContent = l2Pct + '%';
+            document.getElementById('phase-pct-l3').textContent = l3Pct + '%';
+
+            // Update values
+            document.getElementById('phase-l1').textContent = l1 + ' W';
+            document.getElementById('phase-l2').textContent = l2 + ' W';
+            document.getElementById('phase-l3').textContent = l3 + ' W';
+
+            // Update voltages
+            document.getElementById('voltage-l1').textContent = (data.voltage_l1 || 0).toFixed(0) + 'V';
+            document.getElementById('voltage-l2').textContent = (data.voltage_l2 || 0).toFixed(0) + 'V';
+            document.getElementById('voltage-l3').textContent = (data.voltage_l3 || 0).toFixed(0) + 'V';
+        }
+
+        function handleGridStateChange(isOnline, voltage) {
+            if (lastGridOnline === null) {
+                // First load, just set the state
+                lastGridOnline = isOnline;
+                return;
+            }
+
+            if (lastGridOnline && !isOnline) {
+                // Grid just went offline
+                speak('Attention. Grid power is currently unavailable.');
+                showNotification('Power Outage', 'Grid electricity is now offline.');
+                recordOutageEvent('start', voltage);
+            } else if (!lastGridOnline && isOnline) {
+                // Grid just came back online
+                speak('Grid power has been restored.');
+                showNotification('Power Restored', 'Grid electricity is back online.');
+                recordOutageEvent('end', voltage);
+            }
+
+            lastGridOnline = isOnline;
+        }
+
+        function updateDashboard() {
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update debug panel
+                    document.getElementById('debug-last-data').textContent = JSON.stringify(data, null, 2);
+
+                    if (data.error) {
+                        document.getElementById('status').textContent = 'Error: ' + data.error;
+                        document.getElementById('status').className = 'status error';
+                        return;
+                    }
+
+                    document.getElementById('status').textContent = 'Online - Updated ' + new Date().toLocaleTimeString();
+                    document.getElementById('status').className = 'status online';
+
+                    // Solar
+                    document.getElementById('pv-total').innerHTML = data.pv_total_power + '<span class="unit">W</span>';
+                    document.getElementById('pv1-power').textContent = data.pv1_power;
+                    document.getElementById('pv2-power').textContent = data.pv2_power;
+                    document.getElementById('daily-pv').textContent = data.daily_pv.toFixed(1);
+
+                    // Battery
+                    document.getElementById('battery-soc').textContent = data.battery_soc + '%';
+                    document.getElementById('battery-fill').style.width = data.battery_soc + '%';
+                    document.getElementById('battery-voltage').textContent = data.battery_voltage.toFixed(1);
+                    document.getElementById('battery-current').textContent = data.battery_current.toFixed(1);
+                    document.getElementById('battery-power').textContent = Math.abs(data.battery_power);
+                    document.getElementById('battery-status').textContent = data.battery_status + ' (W)';
+
+                    // Grid
+                    const gridPowerEl = document.getElementById('grid-power');
+                    gridPowerEl.innerHTML = Math.abs(data.grid_power) + '<span class="unit">W</span>';
+                    gridPowerEl.className = 'metric-value ' + (data.grid_power > 0 ? 'negative' : data.grid_power < 0 ? 'positive' : 'neutral');
+                    document.getElementById('grid-voltage').textContent = data.grid_voltage.toFixed(1);
+                    document.getElementById('daily-import').textContent = data.daily_grid_import.toFixed(1);
+                    document.getElementById('daily-export').textContent = data.daily_grid_export.toFixed(1);
+
+                    // Load
+                    document.getElementById('load-power').innerHTML = data.load_power + '<span class="unit">W</span>';
+                    document.getElementById('daily-load').textContent = data.daily_load.toFixed(1);
+
+                    // Temperature
+                    document.getElementById('dc-temp').textContent = data.dc_temp.toFixed(1) + '°C';
+                    document.getElementById('heatsink-temp').textContent = data.heatsink_temp.toFixed(1) + '°C';
+
+                    // ===== ANIMATIONS =====
+
+                    // Solar animation - glow when producing
+                    const solarCard = document.getElementById('solar-card');
+                    if (data.pv_total_power > 10) {
+                        solarCard.classList.add('solar-active');
+                    } else {
+                        solarCard.classList.remove('solar-active');
+                    }
+
+                    // Battery animation - charging/discharging
+                    const batteryCard = document.getElementById('battery-card');
+                    const batteryBar = document.querySelector('.battery-bar');
+                    batteryCard.classList.remove('battery-charging', 'battery-discharging');
+                    batteryBar.classList.remove('charging', 'discharging');
+
+                    if (data.battery_current > 1) {
+                        batteryCard.classList.add('battery-charging');
+                        batteryBar.classList.add('charging');
+                    } else if (data.battery_current < -1) {
+                        batteryCard.classList.add('battery-discharging');
+                        batteryBar.classList.add('discharging');
+                    }
+
+                    // Grid animation - active when importing/exporting
+                    const gridCard = document.getElementById('grid-card');
+                    if (Math.abs(data.grid_power) > 50) {
+                        gridCard.classList.add('grid-active');
+                    } else {
+                        gridCard.classList.remove('grid-active');
+                    }
+
+                    // Load animation - glow based on consumption
+                    const loadCard = document.getElementById('load-card');
+                    loadCard.classList.remove('load-active', 'load-high');
+                    if (data.load_power > 3000) {
+                        loadCard.classList.add('load-high');
+                    } else if (data.load_power > 100) {
+                        loadCard.classList.add('load-active');
+                    }
+
+                    // Temperature warning
+                    const tempCard = document.getElementById('temp-card');
+                    if (data.heatsink_temp > 60 || data.dc_temp > 50) {
+                        tempCard.classList.add('temp-warning');
+                    } else {
+                        tempCard.classList.remove('temp-warning');
+                    }
+
+                    // Grid Status Banner
+                    const gridBanner = document.getElementById('grid-banner');
+                    const gridStatusValue = document.getElementById('grid-status-value');
+                    const gridStatusLabel = document.getElementById('grid-status-label');
+                    const isOnline = data.grid_voltage > 100;
+
+                    if (isOnline) {
+                        gridBanner.className = 'grid-status-banner online';
+                        gridStatusValue.textContent = 'ONLINE';
+                        gridStatusLabel.textContent = data.grid_voltage.toFixed(0) + 'V';
+                    } else {
+                        gridBanner.className = 'grid-status-banner offline';
+                        gridStatusValue.textContent = 'OUTAGE';
+                        gridStatusLabel.textContent = 'No grid power';
+                    }
+
+                    // Handle grid state changes (voice + notification)
+                    handleGridStateChange(isOnline, data.grid_voltage);
+
+                    // Update phase display
+                    updatePhaseDisplay(data);
+
+                })
+                .catch(error => {
+                    document.getElementById('status').textContent = 'Connection failed';
+                    document.getElementById('status').className = 'status error';
+                    console.error('Error:', error);
+                });
+        }
+
+        // Initial load
+        loadOutageHistory();
+        loadPhaseStats();
+        updateDashboard();
+
+        // Update every 5 seconds
+        setInterval(updateDashboard, 5000);
+
+        // Refresh phase stats every 30 seconds
+        setInterval(loadPhaseStats, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+pysolarmanv5
+flask
