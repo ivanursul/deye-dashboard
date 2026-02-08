@@ -1,2 +1,3 @@
 pysolarmanv5
 flask
+requests

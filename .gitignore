@@ -9,9 +9,17 @@ env/
 .env
 
 # Data files
+battery_reports/
 outage_history.json
 phase_stats.json
 phase_history.json
+bot_state.json
+inverter_cache.json
+grid_daily_log.json
+
+# Personal/sensitive files
+*.HEIC
+*.har
 
 # IDE
 .idea/

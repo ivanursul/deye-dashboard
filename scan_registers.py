@@ -1,9 +1,10 @@
 """Scan Deye inverter registers to discover available data."""
 from pysolarmanv5 import PySolarmanV5
 import time
+import os
 
-INVERTER_IP = "192.168.1.157"
-LOGGER_SERIAL = 1234567890
+INVERTER_IP = os.environ.get("INVERTER_IP", "0.0.0.0")
+LOGGER_SERIAL = int(os.environ.get("LOGGER_SERIAL", "0"))
 
 # Common Deye register map (holding registers)
 KNOWN_REGISTERS = {

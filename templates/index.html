@@ -17,6 +17,13 @@
             min-height: 100vh;
             color: #fff;
             padding: 20px;
+            transition: background 3s ease;
+        }
+
+        /* Lift all content above weather-bg (z-index:0) for iOS fullscreen compatibility */
+        .header, .status-banner-container, .fullscreen-banner-wrapper, .dashboard, .energy-flow-container, .notification-setup {
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -36,32 +43,190 @@
         }
 
         .header .status.online {
-            color: #4ade80;
+            color: #6ec89b;
         }
 
         .header .status.error {
             color: #f87171;
         }
 
-        /* Grid Status Banner */
-        .grid-status-banner {
+        .header .status.loading {
+            color: #facc15;
+            animation: pulse-loading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-loading {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 100;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            padding: 24px 40px;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* Status banner container - holds grid status and battery */
+        .status-banner-container {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            gap: 28px;
+            max-width: 800px;
             margin: 0 auto 30px;
-            max-width: 500px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        /* Grid Status Banner */
+        .grid-status-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            flex: 1;
+            min-width: 280px;
+            max-width: 400px;
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
 
+        .grid-banner-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Battery Status Banner */
+        .battery-status-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .battery-status-banner.battery-high {
+            border-color: #6ec89b;
+            background: rgba(110, 200, 155, 0.1);
+        }
+
+        .battery-status-banner.battery-medium {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .battery-status-banner.battery-low {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+            animation: pulse-red 2s infinite;
+        }
+
+        .battery-banner-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .battery-banner-icon {
+            font-size: 2rem;
+        }
+
+        .battery-banner-text {
+            flex: 1;
+        }
+
+        .battery-banner-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .battery-banner-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .battery-status-banner.battery-high .battery-banner-value {
+            color: #6ec89b;
+        }
+
+        .battery-status-banner.battery-medium .battery-banner-value {
+            color: #fbbf24;
+        }
+
+        .battery-status-banner.battery-low .battery-banner-value {
+            color: #ef4444;
+        }
+
+        .battery-banner-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .battery-banner-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease, background 0.3s ease;
+        }
+
+        .battery-status-banner.battery-high .battery-banner-fill {
+            background: linear-gradient(90deg, #4a9e73, #6ec89b);
+        }
+
+        .battery-status-banner.battery-medium .battery-banner-fill {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .battery-status-banner.battery-low .battery-banner-fill {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        .battery-banner-status {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
         .grid-status-banner.online {
-            background: rgba(74, 222, 128, 0.1);
-            border-color: #4ade80;
-            box-shadow: 0 0 30px rgba(74, 222, 128, 0.2);
+            background: rgba(110, 200, 155, 0.1);
+            border-color: #6ec89b;
+            box-shadow: 0 0 30px rgba(110, 200, 155, 0.2);
         }
 
         .grid-status-banner.offline {
@@ -77,30 +242,43 @@
         }
 
         .grid-status-icon {
-            font-size: 3rem;
+            font-size: 2rem;
         }
 
         .grid-status-text {
-            text-align: left;
+            flex: 1;
         }
 
         .grid-status-label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #94a3b8;
-            margin-bottom: 4px;
         }
 
         .grid-status-value {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
         }
 
         .grid-status-banner.online .grid-status-value {
-            color: #4ade80;
+            color: #6ec89b;
         }
 
         .grid-status-banner.offline .grid-status-value {
             color: #ef4444;
+        }
+
+        .grid-outage-info {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .grid-status-banner.online .grid-outage-info {
+            color: #94a3b8;
+        }
+
+        .grid-status-banner.offline .grid-outage-info {
+            color: #fbbf24;
         }
 
         .dashboard {
@@ -182,7 +360,7 @@
         }
 
         .metric-value.positive {
-            color: #4ade80;
+            color: #6ec89b;
         }
 
         .metric-value.negative {
@@ -208,7 +386,7 @@
 
         .battery-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ef4444 0%, #fbbf24 30%, #4ade80 70%);
+            background: linear-gradient(90deg, #ef4444 0%, #fbbf24 30%, #6ec89b 70%);
             transition: width 0.5s ease;
             border-radius: 8px;
         }
@@ -294,7 +472,7 @@
         }
 
         .outage-item.outage-end {
-            border-left: 3px solid #4ade80;
+            border-left: 3px solid #6ec89b;
         }
 
         .outage-icon {
@@ -392,7 +570,7 @@
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(74, 222, 128, 0.4),
+                rgba(110, 200, 155, 0.4),
                 transparent
             );
             animation: charge-flow 1.5s linear infinite;
@@ -414,8 +592,8 @@
         }
 
         .card.battery-charging {
-            border-color: rgba(74, 222, 128, 0.5);
-            box-shadow: 0 0 20px rgba(74, 222, 128, 0.15);
+            border-color: rgba(110, 200, 155, 0.5);
+            box-shadow: 0 0 20px rgba(110, 200, 155, 0.15);
         }
 
         .card.battery-discharging {
@@ -624,11 +802,11 @@
         @keyframes bolt-pulse {
             0%, 100% {
                 transform: scale(1);
-                filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.5));
+                filter: drop-shadow(0 0 5px rgba(110, 200, 155, 0.5));
             }
             50% {
                 transform: scale(1.1);
-                filter: drop-shadow(0 0 15px rgba(74, 222, 128, 0.8));
+                filter: drop-shadow(0 0 15px rgba(110, 200, 155, 0.8));
             }
         }
 
@@ -651,11 +829,422 @@
             transition: transform 0.3s ease, filter 0.3s ease;
         }
 
-        /* Responsive */
+        /* Responsive - iPad Air and tablets (portrait ~820px, landscape ~1180px) */
+        @media (max-width: 1024px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .status-banner-container {
+                gap: 24px;
+            }
+
+            .grid-status-banner {
+                padding: 20px 30px;
+            }
+
+            .grid-status-icon {
+                font-size: 2.5rem;
+            }
+
+            .grid-status-value {
+                font-size: 1.5rem;
+            }
+
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .metric-value {
+                font-size: 1.8rem;
+            }
+
+            .energy-flow-container {
+                padding: 16px;
+            }
+
+            .energy-flow-diagram {
+                height: 380px;
+            }
+        }
+
+        /* Responsive - iPad Air portrait and smaller tablets */
+        @media (max-width: 840px) {
+            .header {
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .status-banner-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+            }
+
+            .grid-status-banner,
+            .battery-status-banner {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .card-header h2 {
+                font-size: 1rem;
+            }
+
+            .metric-value {
+                font-size: 1.6rem;
+            }
+
+            .stat .value {
+                font-size: 1.1rem;
+            }
+
+            .battery-gauge {
+                margin: 16px 0;
+            }
+
+            .battery-bar {
+                height: 26px;
+            }
+
+            .stats-row {
+                gap: 12px;
+            }
+
+            .energy-flow-diagram {
+                height: 320px;
+            }
+        }
+
+        /* Responsive - Mobile phones */
         @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                margin-bottom: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .fullscreen-btn {
+                top: 12px;
+                right: 12px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .grid-status-banner {
+                padding: 16px 20px;
+                gap: 12px;
+            }
+
+            .grid-status-icon {
+                font-size: 2rem;
+            }
+
+            .grid-status-value {
+                font-size: 1.3rem;
+            }
+
+            .battery-status-banner {
+                padding: 14px 18px;
+            }
+
+            .battery-banner-icon {
+                font-size: 1.6rem;
+            }
+
+            .battery-banner-value {
+                font-size: 1.3rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
             .metric-value {
                 font-size: 1.5rem;
             }
+
+            .energy-flow-diagram {
+                height: 280px;
+            }
+
+            .phase-bar-item {
+                gap: 8px;
+            }
+
+            .phase-value {
+                width: 55px;
+                font-size: 0.85rem;
+            }
+
+            .temp-row {
+                gap: 12px;
+            }
+
+            .temp-value {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Fullscreen focus view - using class for cross-browser reliability */
+        body.fullscreen-mode {
+            padding: 0 !important;
+        }
+
+        body.fullscreen-mode .header,
+        body.fullscreen-mode .notification-setup {
+            display: none !important;
+        }
+
+        /* ── Fullscreen: CSS Grid layout ── */
+        body.fullscreen-mode .fullscreen-banner-wrapper {
+            display: grid;
+            grid-template-areas:
+                "weather weather"
+                "grid    battery";
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 50px 80px;
+            align-content: center;
+            justify-items: center;
+            min-height: 100vh;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        body.fullscreen-mode .weather-forecast-banner {
+            grid-area: weather;
+        }
+
+        body.fullscreen-mode .status-banner-container {
+            display: contents !important;
+        }
+
+        body.fullscreen-mode .grid-status-banner,
+        body.fullscreen-mode .battery-status-banner {
+            align-self: stretch;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.fullscreen-mode .grid-status-banner {
+            grid-area: grid;
+            justify-self: end;
+        }
+
+        body.fullscreen-mode .battery-status-banner {
+            grid-area: battery;
+            justify-self: start;
+        }
+
+        body.fullscreen-mode .grid-status-icon,
+        body.fullscreen-mode .battery-banner-icon {
+            font-size: 3.5rem;
+        }
+
+        body.fullscreen-mode .grid-status-value,
+        body.fullscreen-mode .battery-banner-value {
+            font-size: 3rem;
+        }
+
+        body.fullscreen-mode .grid-status-label,
+        body.fullscreen-mode .battery-banner-label {
+            font-size: 1rem;
+        }
+
+        body.fullscreen-mode .grid-outage-info,
+        body.fullscreen-mode .battery-banner-status {
+            font-size: 1rem;
+            order: 1;
+            margin-bottom: 12px;
+        }
+
+        body.fullscreen-mode .grid-banner-bar,
+        body.fullscreen-mode .battery-banner-bar {
+            height: 20px;
+            border-radius: 10px;
+            order: 2;
+            margin-top: auto;
+        }
+
+        /* Weather Forecast Banner */
+        .weather-forecast-banner {
+            display: none;
+        }
+
+        body.fullscreen-mode .weather-forecast-banner {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            width: 100%;
+            max-width: 1080px;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: #fff;
+        }
+
+        body.fullscreen-mode .weather-forecast-current {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        body.fullscreen-mode .weather-forecast-icon {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        body.fullscreen-mode .weather-forecast-temp {
+            font-size: 2.8rem;
+            font-weight: 700;
+        }
+
+        body.fullscreen-mode .weather-forecast-desc {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        body.fullscreen-mode .weather-forecast-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            font-size: 1.1rem;
+            opacity: 0.85;
+        }
+
+        body.fullscreen-mode .weather-forecast-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        body.fullscreen-mode .weather-detail-label {
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        .scroll-hint {
+            display: none;
+        }
+
+        body.fullscreen-mode .scroll-hint {
+            display: flex !important;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.5rem;
+            animation: bounce-down 2s ease-in-out infinite;
+            z-index: 100;
+        }
+
+        body.fullscreen-mode .scroll-hint:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        @keyframes bounce-down {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ── Grid Banner: Schedule Progress Bar ── */
+        .grid-banner-bar {
+            display: none;
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .grid-banner-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            width: 0;
+        }
+
+        .grid-banner-bar-fill.green {
+            background: linear-gradient(90deg, #4a9e73, #6ec89b);
+        }
+
+        .grid-banner-bar-fill.red {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        /* Sound toggle button */
+        .sound-btn {
+            position: fixed;
+            top: 20px;
+            right: 74px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 100;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
 
         /* Debug Panel */
@@ -772,13 +1361,845 @@
             border-radius: 4px;
             word-break: break-all;
         }
+
+        /* Energy Flow Diagram Styles */
+        .energy-flow-container {
+            max-width: 1400px;
+            margin: 30px auto 30px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .energy-flow-title {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .energy-flow-diagram {
+            width: 100%;
+            height: 450px;
+        }
+
+        /* Component styles */
+        .ef-component {
+            transition: all 0.3s ease;
+        }
+
+        .ef-component-box {
+            fill: rgba(255, 255, 255, 0.1);
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 2;
+            rx: 12;
+        }
+
+        .ef-component-icon {
+            font-size: 36px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .ef-component-label {
+            fill: #94a3b8;
+            font-size: 14px;
+            text-anchor: middle;
+            font-weight: 500;
+        }
+
+        .ef-component-value {
+            fill: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+
+        /* Component active states */
+        .ef-component.active .ef-component-box {
+            stroke-width: 3;
+        }
+
+        .ef-component.solar-active .ef-component-box {
+            stroke: #fbbf24;
+            fill: rgba(251, 191, 36, 0.15);
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.4));
+        }
+
+        .ef-component.battery-charging .ef-component-box {
+            stroke: #6ec89b;
+            fill: rgba(110, 200, 155, 0.15);
+            filter: drop-shadow(0 0 10px rgba(110, 200, 155, 0.4));
+        }
+
+        .ef-component.battery-discharging .ef-component-box {
+            stroke: #fb923c;
+            fill: rgba(251, 146, 60, 0.15);
+            filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.4));
+        }
+
+        .ef-component.grid-importing .ef-component-box {
+            stroke: #60a5fa;
+            fill: rgba(96, 165, 250, 0.15);
+            filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.4));
+        }
+
+        .ef-component.grid-exporting .ef-component-box {
+            stroke: #6ec89b;
+            fill: rgba(110, 200, 155, 0.15);
+            filter: drop-shadow(0 0 10px rgba(110, 200, 155, 0.4));
+        }
+
+        .ef-component.load-active .ef-component-box {
+            stroke: #f87171;
+            fill: rgba(248, 113, 113, 0.15);
+            filter: drop-shadow(0 0 10px rgba(248, 113, 113, 0.4));
+        }
+
+        /* Flow path styles */
+        .ef-flow-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .ef-flow-path.active {
+            stroke-dasharray: 8 4;
+            animation: energyFlow 0.8s linear infinite;
+        }
+
+        .ef-flow-path.solar-flow {
+            stroke: #fbbf24;
+            filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+        }
+
+        .ef-flow-path.battery-charge-flow {
+            stroke: #6ec89b;
+            filter: drop-shadow(0 0 4px rgba(110, 200, 155, 0.6));
+        }
+
+        .ef-flow-path.battery-discharge-flow {
+            stroke: #fb923c;
+            filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.6));
+        }
+
+        .ef-flow-path.grid-import-flow {
+            stroke: #60a5fa;
+            filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.6));
+        }
+
+        .ef-flow-path.grid-export-flow {
+            stroke: #6ec89b;
+            filter: drop-shadow(0 0 4px rgba(110, 200, 155, 0.6));
+        }
+
+        .ef-flow-path.load-flow {
+            stroke: #f87171;
+            filter: drop-shadow(0 0 4px rgba(248, 113, 113, 0.6));
+        }
+
+        .ef-flow-path.reverse {
+            animation: energyFlowReverse 0.8s linear infinite;
+        }
+
+        @keyframes energyFlow {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes energyFlowReverse {
+            from { stroke-dashoffset: 0; }
+            to { stroke-dashoffset: 24; }
+        }
+
+        /* Power labels on flows */
+        .ef-power-label {
+            fill: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .ef-power-label-bg {
+            fill: rgba(0, 0, 0, 0.8);
+            rx: 6;
+        }
+
+        /* Hidden components */
+        .ef-component.hidden,
+        .ef-flow-path.hidden,
+        .ef-power-label.hidden,
+        .ef-power-label-bg.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Inverter special styling */
+        .ef-inverter-box {
+            fill: rgba(139, 92, 246, 0.2);
+            stroke: #8b5cf6;
+            stroke-width: 3;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .energy-flow-container {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+            .energy-flow-diagram {
+                max-height: 280px;
+            }
+        }
+        /* ===== WEATHER BACKGROUND ===== */
+        #weather-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        #battery-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(120, 15, 15, 0);
+            transition: background 3s ease;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Default: all effect elements hidden (use visibility for smooth transitions) */
+        .star, .raindrop, .snowflake, .cloud-blob, .sunstreak, .lightning-flash, .fog-overlay, .dawn-overlay, .wind-streak, .easter-egg {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            will-change: transform, opacity;
+            transition: opacity 1.5s ease, visibility 1.5s ease;
+        }
+
+        /* === Clear Night: twinkling stars (10 total) === */
+        .weather-clear_night .star {
+            visibility: visible;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #fff;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+        .weather-clear_night .star:nth-child(2) { top: 8%; left: 15%; animation-duration: 3s; animation-delay: 0s; }
+        .weather-clear_night .star:nth-child(3) { top: 20%; left: 55%; animation-duration: 4s; animation-delay: 0.8s; }
+        .weather-clear_night .star:nth-child(4) { top: 12%; left: 80%; animation-duration: 3.5s; animation-delay: 1.5s; width: 2px; height: 2px; }
+        .weather-clear_night .star:nth-child(5) { top: 35%; left: 30%; animation-duration: 5s; animation-delay: 0.3s; }
+        .weather-clear_night .star:nth-child(6) { top: 25%; left: 70%; animation-duration: 3.8s; animation-delay: 2s; width: 4px; height: 4px; }
+        .weather-clear_night .star:nth-child(7) { top: 45%; left: 45%; animation-duration: 4.5s; animation-delay: 1s; width: 2px; height: 2px; }
+        /* New stars (children 25-28) */
+        .weather-clear_night .star:nth-child(25) { top: 15%; left: 40%; animation-duration: 3.2s; animation-delay: 0.5s; width: 4px; height: 4px; }
+        .weather-clear_night .star:nth-child(26) { top: 50%; left: 85%; animation-duration: 4.8s; animation-delay: 1.8s; width: 2px; height: 2px; }
+        .weather-clear_night .star:nth-child(27) { top: 5%; left: 65%; animation-duration: 3.6s; animation-delay: 2.5s; }
+        .weather-clear_night .star:nth-child(28) { top: 40%; left: 10%; animation-duration: 5.2s; animation-delay: 0.7s; width: 4px; height: 4px; }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* === Clear Day: sun streaks + warm glow === */
+        .weather-clear_day .sunstreak {
+            visibility: visible;
+            width: 3px;
+            height: 100px;
+            background: rgba(255, 215, 0, 0.25);
+            border-radius: 2px;
+            animation: sun-pulse-bg 5s ease-in-out infinite;
+        }
+        .weather-clear_day .sunstreak:nth-child(18) { top: 5%; left: 20%; transform: rotate(15deg); animation-duration: 5s; animation-delay: 0s; }
+        .weather-clear_day .sunstreak:nth-child(19) { top: 2%; left: 50%; transform: rotate(-10deg); animation-duration: 6s; animation-delay: 1.5s; }
+        .weather-clear_day .sunstreak:nth-child(20) { top: 8%; left: 75%; transform: rotate(8deg); animation-duration: 5.5s; animation-delay: 3s; }
+
+        /* Warm glow overlay for clear day */
+        .weather-clear_day .dawn-overlay {
+            visibility: visible;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255, 200, 50, 0.15), transparent 70%);
+            animation: warm-glow 20s ease-in-out infinite;
+        }
+
+        @keyframes sun-pulse-bg {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.35; }
+        }
+
+        @keyframes warm-glow {
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.15; }
+        }
+
+        /* === Rain: falling drops (10 total) === */
+        .weather-rain .raindrop,
+        .weather-thunderstorm .raindrop {
+            visibility: visible;
+            width: 2px;
+            height: 25px;
+            background: rgba(150, 180, 255, 0.5);
+            border-radius: 1px;
+            animation: rainfall 1.3s linear infinite;
+        }
+        .weather-rain .raindrop:nth-child(8),
+        .weather-thunderstorm .raindrop:nth-child(8) { left: 10%; animation-duration: 1.1s; animation-delay: 0s; }
+        .weather-rain .raindrop:nth-child(9),
+        .weather-thunderstorm .raindrop:nth-child(9) { left: 30%; animation-duration: 1.3s; animation-delay: 0.2s; }
+        .weather-rain .raindrop:nth-child(10),
+        .weather-thunderstorm .raindrop:nth-child(10) { left: 50%; animation-duration: 1.2s; animation-delay: 0.5s; }
+        .weather-rain .raindrop:nth-child(11),
+        .weather-thunderstorm .raindrop:nth-child(11) { left: 70%; animation-duration: 1.4s; animation-delay: 0.3s; }
+        .weather-rain .raindrop:nth-child(12),
+        .weather-thunderstorm .raindrop:nth-child(12) { left: 90%; animation-duration: 1.15s; animation-delay: 0.7s; }
+        /* New raindrops (children 29-33) */
+        .weather-rain .raindrop:nth-child(29),
+        .weather-thunderstorm .raindrop:nth-child(29) { left: 20%; animation-duration: 0.9s; animation-delay: 0.1s; }
+        .weather-rain .raindrop:nth-child(30),
+        .weather-thunderstorm .raindrop:nth-child(30) { left: 40%; animation-duration: 1.5s; animation-delay: 0.4s; }
+        .weather-rain .raindrop:nth-child(31),
+        .weather-thunderstorm .raindrop:nth-child(31) { left: 60%; animation-duration: 0.85s; animation-delay: 0.6s; }
+        .weather-rain .raindrop:nth-child(32),
+        .weather-thunderstorm .raindrop:nth-child(32) { left: 80%; animation-duration: 1.6s; animation-delay: 0.15s; }
+        .weather-rain .raindrop:nth-child(33),
+        .weather-thunderstorm .raindrop:nth-child(33) { left: 5%; animation-duration: 1.0s; animation-delay: 0.8s; }
+
+        @keyframes rainfall {
+            0% { transform: translateY(-30px); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(110vh); opacity: 0; }
+        }
+
+        /* === Snow: drifting flakes (10 total, varied sizes) === */
+        .weather-snow .snowflake {
+            visibility: visible;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: snowfall 7s linear infinite;
+        }
+        .weather-snow .snowflake:nth-child(13) { left: 10%; animation-duration: 6s; animation-delay: 0s; width: 4px; height: 4px; }
+        .weather-snow .snowflake:nth-child(14) { left: 25%; animation-duration: 8s; animation-delay: 1s; width: 7px; height: 7px; }
+        .weather-snow .snowflake:nth-child(15) { left: 45%; animation-duration: 7s; animation-delay: 2.5s; }
+        .weather-snow .snowflake:nth-child(16) { left: 65%; animation-duration: 9s; animation-delay: 0.5s; width: 8px; height: 8px; }
+        .weather-snow .snowflake:nth-child(17) { left: 85%; animation-duration: 6.5s; animation-delay: 3s; width: 5px; height: 5px; }
+        /* New snowflakes (children 34-38) */
+        .weather-snow .snowflake:nth-child(34) { left: 15%; animation-duration: 7.5s; animation-delay: 1.5s; width: 7px; height: 7px; }
+        .weather-snow .snowflake:nth-child(35) { left: 35%; animation-duration: 6.8s; animation-delay: 0.8s; width: 4px; height: 4px; }
+        .weather-snow .snowflake:nth-child(36) { left: 55%; animation-duration: 8.5s; animation-delay: 2s; width: 8px; height: 8px; }
+        .weather-snow .snowflake:nth-child(37) { left: 75%; animation-duration: 7.2s; animation-delay: 3.5s; }
+        .weather-snow .snowflake:nth-child(38) { left: 95%; animation-duration: 9.5s; animation-delay: 1.2s; width: 7px; height: 7px; }
+
+        @keyframes snowfall {
+            0% { transform: translateY(-20px) translateX(0px); opacity: 0; }
+            10% { opacity: 0.5; }
+            50% { transform: translateY(50vh) translateX(20px); }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(110vh) translateX(-10px); opacity: 0; }
+        }
+
+        /* === Cloudy: drifting blobs (more visible) === */
+        .weather-cloudy .cloud-blob {
+            visibility: visible;
+            width: 200px;
+            height: 80px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            animation: cloud-drift 45s linear infinite;
+        }
+        .weather-cloudy .cloud-blob:nth-child(21) { top: 10%; animation-duration: 40s; animation-delay: 0s; }
+        .weather-cloudy .cloud-blob:nth-child(22) { top: 30%; animation-duration: 50s; animation-delay: 10s; }
+        .weather-cloudy .cloud-blob:nth-child(23) { top: 55%; animation-duration: 55s; animation-delay: 20s; }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(-220px); opacity: 0; }
+            5% { opacity: 0.15; }
+            95% { opacity: 0.15; }
+            100% { transform: translateX(110vw); opacity: 0; }
+        }
+
+        /* === Cloudy: wind streaks (Ghost of Tsushima style) === */
+        .weather-cloudy .wind-streak {
+            visibility: visible;
+            height: 1px;
+            border-radius: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.15), transparent);
+            animation: wind-sweep 4s linear infinite;
+        }
+        .weather-cloudy .wind-streak:nth-child(42) { top: 18%; width: 120px; animation-duration: 3.2s; animation-delay: 0s; }
+        .weather-cloudy .wind-streak:nth-child(43) { top: 35%; width: 90px; animation-duration: 2.8s; animation-delay: 1.2s; height: 2px; animation-name: wind-sweep-up; }
+        .weather-cloudy .wind-streak:nth-child(44) { top: 52%; width: 150px; animation-duration: 3.8s; animation-delay: 0.5s; }
+        .weather-cloudy .wind-streak:nth-child(45) { top: 70%; width: 80px; animation-duration: 2.5s; animation-delay: 2s; animation-name: wind-sweep-up; }
+        .weather-cloudy .wind-streak:nth-child(46) { top: 25%; width: 110px; animation-duration: 3.5s; animation-delay: 3s; height: 2px; }
+
+        @keyframes wind-sweep {
+            0% { transform: translateX(-160px) translateY(0); opacity: 0; }
+            8% { opacity: 0.4; }
+            50% { transform: translateX(50vw) translateY(10px); }
+            92% { opacity: 0.4; }
+            100% { transform: translateX(110vw) translateY(18px); opacity: 0; }
+        }
+
+        @keyframes wind-sweep-up {
+            0% { transform: translateX(-120px) translateY(0); opacity: 0; }
+            8% { opacity: 0.35; }
+            50% { transform: translateX(50vw) translateY(-12px); }
+            92% { opacity: 0.35; }
+            100% { transform: translateX(110vw) translateY(-20px); opacity: 0; }
+        }
+
+        /* === Fog: larger, slower clouds + haze overlay === */
+        .weather-fog .cloud-blob {
+            visibility: visible;
+            width: 300px;
+            height: 120px;
+            border-radius: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            animation: cloud-drift-fog 60s linear infinite;
+        }
+        .weather-fog .cloud-blob:nth-child(21) { top: 10%; animation-duration: 55s; animation-delay: 0s; }
+        .weather-fog .cloud-blob:nth-child(22) { top: 35%; animation-duration: 65s; animation-delay: 15s; }
+        .weather-fog .cloud-blob:nth-child(23) { top: 60%; animation-duration: 70s; animation-delay: 30s; }
+
+        .weather-fog .fog-overlay {
+            visibility: visible;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(200, 210, 220, 0.12);
+            animation: fog-pulse 20s ease-in-out infinite;
+        }
+
+        @keyframes cloud-drift-fog {
+            0% { transform: translateX(-320px); opacity: 0; }
+            5% { opacity: 0.2; }
+            95% { opacity: 0.2; }
+            100% { transform: translateX(110vw); opacity: 0; }
+        }
+
+        @keyframes fog-pulse {
+            0%, 100% { opacity: 0.06; }
+            50% { opacity: 0.18; }
+        }
+
+        /* === Thunderstorm: lightning flashes (2 total, staggered) === */
+        .weather-thunderstorm .lightning-flash {
+            visibility: visible;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0);
+            animation: lightning 10s ease-in-out infinite;
+        }
+        /* Second lightning flash with offset timing */
+        .weather-thunderstorm .lightning-flash:nth-child(39) {
+            animation: lightning-alt 7s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+
+        @keyframes lightning {
+            0%, 100% { background: rgba(255, 255, 255, 0); }
+            92% { background: rgba(255, 255, 255, 0); }
+            93% { background: rgba(255, 255, 255, 0.3); }
+            94% { background: rgba(255, 255, 255, 0); }
+            96% { background: rgba(255, 255, 255, 0); }
+            97% { background: rgba(255, 255, 255, 0.15); }
+            98% { background: rgba(255, 255, 255, 0); }
+        }
+
+        @keyframes lightning-alt {
+            0%, 100% { background: rgba(255, 255, 255, 0); }
+            88% { background: rgba(255, 255, 255, 0); }
+            89% { background: rgba(255, 255, 255, 0.25); }
+            90% { background: rgba(255, 255, 255, 0); }
+            91.5% { background: rgba(255, 255, 255, 0); }
+            92% { background: rgba(255, 255, 255, 0.12); }
+            93% { background: rgba(255, 255, 255, 0); }
+        }
+
+        /* === Dawn/Dusk: warm pulse overlay + orange sun streaks === */
+        .weather-dawn_dusk .dawn-overlay {
+            visibility: visible;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 50% 80%, rgba(255, 140, 50, 0.15), transparent 70%);
+            animation: dawn-glow 15s ease-in-out infinite;
+        }
+        .weather-dawn_dusk .sunstreak {
+            visibility: visible;
+            width: 3px;
+            height: 100px;
+            background: rgba(255, 160, 50, 0.25);
+            border-radius: 2px;
+            animation: sun-pulse-bg 6s ease-in-out infinite;
+        }
+        .weather-dawn_dusk .sunstreak:nth-child(18) { top: 10%; left: 20%; transform: rotate(15deg); animation-duration: 6s; animation-delay: 0s; }
+        .weather-dawn_dusk .sunstreak:nth-child(19) { top: 5%; left: 50%; transform: rotate(-10deg); animation-duration: 7s; animation-delay: 2s; }
+        .weather-dawn_dusk .sunstreak:nth-child(20) { top: 12%; left: 75%; transform: rotate(8deg); animation-duration: 6.5s; animation-delay: 4s; }
+
+        @keyframes dawn-glow {
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.15; }
+        }
+
+        /* ===== EASTER EGGS — rare surprises per weather mode ===== */
+
+        /* --- Clear Night: shooting star --- */
+        .weather-clear_night .easter-egg.shooting-star {
+            visibility: visible;
+            top: 8%;
+            left: 0;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8), -20px 0 15px 1px rgba(200, 220, 255, 0.4);
+            animation: shooting-star 45s linear infinite;
+        }
+
+        @keyframes shooting-star {
+            0%, 95% { transform: translateX(-10px) translateY(0); opacity: 0; }
+            96% { opacity: 0.9; }
+            98% { opacity: 0.9; }
+            99% { transform: translateX(100vw) translateY(80px); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* --- Clear Day: bird silhouette --- */
+        .weather-clear_day .easter-egg.bird {
+            visibility: visible;
+            top: 12%;
+            left: 0;
+            width: 16px;
+            height: 4px;
+            background: transparent;
+            border-top: 2px solid rgba(40, 30, 20, 0.5);
+            border-radius: 0 0 50% 50%;
+            animation: bird-fly 90s linear infinite;
+        }
+        .weather-clear_day .easter-egg.bird::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 14px;
+            width: 16px;
+            height: 4px;
+            border-top: 2px solid rgba(40, 30, 20, 0.5);
+            border-radius: 0 0 50% 50%;
+        }
+
+        @keyframes bird-fly {
+            0%, 88% { transform: translateX(-40px) translateY(0); opacity: 0; }
+            89% { opacity: 0.6; }
+            90% { transform: translateX(10vw) translateY(-5px); }
+            93% { transform: translateX(40vw) translateY(8px); }
+            96% { transform: translateX(70vw) translateY(-3px); }
+            98% { opacity: 0.6; }
+            99% { transform: translateX(105vw) translateY(5px); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* --- Dawn/Dusk: firefly --- */
+        .weather-dawn_dusk .easter-egg.firefly {
+            visibility: visible;
+            top: 55%;
+            left: 30%;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #aeff6e;
+            box-shadow: 0 0 8px 3px rgba(174, 255, 110, 0.6);
+            animation: firefly-drift 40s ease-in-out infinite;
+        }
+
+        @keyframes firefly-drift {
+            0%, 75% { opacity: 0; transform: translate(0, 0); }
+            78% { opacity: 0.8; }
+            80% { transform: translate(15px, -20px); opacity: 0.2; }
+            82% { transform: translate(30px, -10px); opacity: 0.8; }
+            84% { transform: translate(50px, -30px); opacity: 0.1; }
+            86% { transform: translate(65px, -15px); opacity: 0.9; }
+            88% { transform: translate(80px, -25px); opacity: 0.2; }
+            90% { transform: translate(100px, -8px); opacity: 0.7; }
+            92% { opacity: 0; }
+            100% { opacity: 0; transform: translate(120px, -20px); }
+        }
+
+        /* --- Rain: puddle ripple at bottom --- */
+        .weather-rain .easter-egg.puddle-ripple,
+        .weather-thunderstorm .easter-egg.puddle-ripple {
+            visibility: visible;
+            bottom: 8%;
+            top: auto;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(150, 180, 255, 0.4);
+            animation: puddle-ripple 60s ease-out infinite;
+        }
+
+        @keyframes puddle-ripple {
+            0%, 90% { transform: translate(-50%, 0) scale(1); opacity: 0; border-width: 1px; }
+            91% { opacity: 0.5; border-width: 1px; }
+            95% { transform: translate(-50%, 0) scale(8); opacity: 0.3; border-width: 0.5px; }
+            98% { transform: translate(-50%, 0) scale(14); opacity: 0; border-width: 0.3px; }
+            100% { opacity: 0; }
+        }
+
+        /* --- Snow: one big slow crystal --- */
+        .weather-snow .easter-egg.big-flake {
+            visibility: visible;
+            left: 40%;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 30%, rgba(200,220,255,0.3) 70%, transparent);
+            animation: big-flake-fall 80s linear infinite;
+        }
+
+        @keyframes big-flake-fall {
+            0%, 85% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+            86% { opacity: 0.7; }
+            90% { transform: translateY(25vh) translateX(30px) rotate(90deg); }
+            94% { transform: translateY(55vh) translateX(-15px) rotate(180deg); }
+            97% { opacity: 0.7; }
+            99% { transform: translateY(95vh) translateX(20px) rotate(300deg); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* --- Cloudy: tumbling leaf --- */
+        .weather-cloudy .easter-egg.leaf {
+            visibility: visible;
+            top: 25%;
+            left: 0;
+            width: 8px;
+            height: 5px;
+            border-radius: 50% 0 50% 0;
+            background: rgba(140, 120, 60, 0.6);
+            animation: leaf-tumble 70s linear infinite;
+        }
+
+        @keyframes leaf-tumble {
+            0%, 86% { transform: translateX(-20px) translateY(0) rotate(0deg); opacity: 0; }
+            87% { opacity: 0.6; }
+            89% { transform: translateX(15vw) translateY(30px) rotate(120deg); }
+            91% { transform: translateX(30vw) translateY(10px) rotate(250deg); }
+            93% { transform: translateX(50vw) translateY(50px) rotate(400deg); }
+            95% { transform: translateX(70vw) translateY(25px) rotate(550deg); }
+            97% { transform: translateX(90vw) translateY(60px) rotate(680deg); opacity: 0.5; }
+            99% { transform: translateX(110vw) translateY(40px) rotate(800deg); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* --- Fog: ghostly shape --- */
+        .weather-fog .easter-egg.ghost {
+            visibility: visible;
+            top: 40%;
+            left: 50%;
+            width: 30px;
+            height: 40px;
+            border-radius: 50% 50% 40% 40%;
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.02);
+            animation: ghost-appear 120s ease-in-out infinite;
+        }
+
+        @keyframes ghost-appear {
+            0%, 92% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+            94% { opacity: 0.15; transform: translate(-50%, -10px) scale(1); }
+            96% { opacity: 0.12; transform: translate(-45%, -20px) scale(1.05); }
+            98% { opacity: 0.08; transform: translate(-55%, -30px) scale(1.1); }
+            99% { opacity: 0; }
+            100% { opacity: 0; transform: translate(-50%, -40px) scale(1); }
+        }
+
+        /* ===== EASTER EGG DEMO KEYFRAMES (debug panel instant play) ===== */
+
+        @keyframes shooting-star-demo {
+            0% { transform: translateX(-10px) translateY(0); opacity: 0; }
+            10% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { transform: translateX(100vw) translateY(80px); opacity: 0; }
+        }
+
+        @keyframes bird-fly-demo {
+            0% { transform: translateX(-40px) translateY(0); opacity: 0; }
+            5% { opacity: 0.6; }
+            25% { transform: translateX(25vw) translateY(-5px); }
+            50% { transform: translateX(50vw) translateY(8px); }
+            75% { transform: translateX(75vw) translateY(-3px); }
+            95% { opacity: 0.6; }
+            100% { transform: translateX(105vw) translateY(5px); opacity: 0; }
+        }
+
+        @keyframes firefly-demo {
+            0% { opacity: 0; transform: translate(0, 0); }
+            8% { opacity: 0.8; }
+            20% { transform: translate(15px, -20px); opacity: 0.2; }
+            35% { transform: translate(30px, -10px); opacity: 0.8; }
+            50% { transform: translate(50px, -30px); opacity: 0.1; }
+            65% { transform: translate(65px, -15px); opacity: 0.9; }
+            80% { transform: translate(80px, -25px); opacity: 0.2; }
+            90% { transform: translate(100px, -8px); opacity: 0.7; }
+            100% { opacity: 0; transform: translate(120px, -20px); }
+        }
+
+        @keyframes puddle-ripple-demo {
+            0% { transform: translate(-50%, 0) scale(1); opacity: 0; border-width: 1px; }
+            10% { opacity: 0.5; border-width: 1px; }
+            60% { transform: translate(-50%, 0) scale(8); opacity: 0.3; border-width: 0.5px; }
+            100% { transform: translate(-50%, 0) scale(14); opacity: 0; border-width: 0.3px; }
+        }
+
+        @keyframes big-flake-demo {
+            0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+            5% { opacity: 0.7; }
+            35% { transform: translateY(25vh) translateX(30px) rotate(90deg); }
+            65% { transform: translateY(55vh) translateX(-15px) rotate(180deg); }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(95vh) translateX(20px) rotate(300deg); opacity: 0; }
+        }
+
+        @keyframes leaf-tumble-demo {
+            0% { transform: translateX(-20px) translateY(0) rotate(0deg); opacity: 0; }
+            5% { opacity: 0.6; }
+            20% { transform: translateX(15vw) translateY(30px) rotate(120deg); }
+            40% { transform: translateX(35vw) translateY(10px) rotate(250deg); }
+            60% { transform: translateX(55vw) translateY(50px) rotate(400deg); }
+            80% { transform: translateX(75vw) translateY(25px) rotate(550deg); }
+            95% { opacity: 0.5; }
+            100% { transform: translateX(105vw) translateY(40px) rotate(700deg); opacity: 0; }
+        }
+
+        @keyframes ghost-demo {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+            20% { opacity: 0.15; transform: translate(-50%, -10px) scale(1); }
+            50% { opacity: 0.12; transform: translate(-45%, -20px) scale(1.05); }
+            80% { opacity: 0.08; transform: translate(-55%, -30px) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -40px) scale(1); }
+        }
+
     </style>
 </head>
 <body>
+    <!-- Weather Background -->
+    <div id="weather-bg">
+        <div id="battery-overlay"></div>
+        <!-- 6 stars (children 2-7) -->
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <!-- 5 raindrops (children 8-12) -->
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <!-- 5 snowflakes (children 13-17) -->
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <!-- 3 sun streaks (children 18-20) -->
+        <div class="sunstreak"></div>
+        <div class="sunstreak"></div>
+        <div class="sunstreak"></div>
+        <!-- 3 cloud blobs (children 21-23) -->
+        <div class="cloud-blob"></div>
+        <div class="cloud-blob"></div>
+        <div class="cloud-blob"></div>
+        <!-- lightning flash (child 24) -->
+        <div class="lightning-flash"></div>
+        <!-- 4 extra stars (children 25-28) -->
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <!-- 5 extra raindrops (children 29-33) -->
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <div class="raindrop"></div>
+        <!-- 5 extra snowflakes (children 34-38) -->
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <div class="snowflake"></div>
+        <!-- 2nd lightning flash (child 39) -->
+        <div class="lightning-flash"></div>
+        <!-- fog overlay (child 40) -->
+        <div class="fog-overlay"></div>
+        <!-- dawn/warm glow overlay (child 41) -->
+        <div class="dawn-overlay"></div>
+        <!-- 5 wind streaks (children 42-46) -->
+        <div class="wind-streak"></div>
+        <div class="wind-streak"></div>
+        <div class="wind-streak"></div>
+        <div class="wind-streak"></div>
+        <div class="wind-streak"></div>
+        <!-- Easter eggs (children 47-53) — one per weather mode -->
+        <div class="easter-egg shooting-star"></div>
+        <div class="easter-egg bird"></div>
+        <div class="easter-egg firefly"></div>
+        <div class="easter-egg puddle-ripple"></div>
+        <div class="easter-egg big-flake"></div>
+        <div class="easter-egg leaf"></div>
+        <div class="easter-egg ghost"></div>
+    </div>
+
     <div class="header">
         <h1>Deye Solar Dashboard</h1>
         <div class="status" id="status">Connecting...</div>
     </div>
+
+    <!-- Sound Toggle Button -->
+    <button class="sound-btn" id="sound-btn" onclick="toggleSound()" title="Toggle Sound">
+        <svg id="sound-icon-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg id="sound-icon-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+    </button>
+
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+        <svg id="fullscreen-icon-enter" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+        <svg id="fullscreen-icon-exit" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+        </svg>
+    </button>
 
     <!-- Notification Permission Request -->
     <div class="notification-setup" id="notification-setup">
@@ -786,13 +2207,75 @@
         <button onclick="requestNotificationPermission()">Enable Alerts</button>
     </div>
 
-    <!-- Grid Status Banner -->
-    <div class="grid-status-banner" id="grid-banner">
-        <div class="grid-status-icon" id="grid-status-icon">⚡</div>
-        <div class="grid-status-text">
-            <div class="grid-status-label" id="grid-status-label">Grid Status</div>
-            <div class="grid-status-value" id="grid-status-value">Checking...</div>
+    <!-- Fullscreen Banner Wrapper -->
+    <div class="fullscreen-banner-wrapper">
+        <!-- Weather Forecast Banner (visible in fullscreen only) -->
+        <div class="weather-forecast-banner" id="weather-forecast-banner">
+            <div class="weather-forecast-current">
+                <div class="weather-forecast-icon" id="weather-forecast-icon">--</div>
+                <div>
+                    <div class="weather-forecast-temp" id="weather-forecast-temp">--</div>
+                    <div class="weather-forecast-desc" id="weather-forecast-desc">--</div>
+                </div>
+            </div>
+            <div class="weather-forecast-details">
+                <div class="weather-forecast-detail">
+                    <span class="weather-detail-label">H:</span>
+                    <span id="weather-forecast-high">--</span>
+                </div>
+                <div class="weather-forecast-detail">
+                    <span class="weather-detail-label">L:</span>
+                    <span id="weather-forecast-low">--</span>
+                </div>
+                <div class="weather-forecast-detail">
+                    <span class="weather-detail-label">Sunrise:</span>
+                    <span id="weather-forecast-sunrise">--</span>
+                </div>
+                <div class="weather-forecast-detail">
+                    <span class="weather-detail-label">Sunset:</span>
+                    <span id="weather-forecast-sunset">--</span>
+                </div>
+            </div>
         </div>
+
+        <!-- Status Banners Container -->
+        <div class="status-banner-container">
+            <!-- Grid Status Banner -->
+            <div class="grid-status-banner" id="grid-banner">
+                <div class="grid-banner-header">
+                    <div class="grid-status-icon" id="grid-status-icon">⚡</div>
+                    <div class="grid-status-text">
+                        <div class="grid-status-label" id="grid-status-label">Grid Status</div>
+                        <div class="grid-status-value" id="grid-status-value">Checking...</div>
+                    </div>
+                </div>
+                <div class="grid-banner-bar" id="grid-banner-bar">
+                    <div class="grid-banner-bar-fill" id="grid-banner-bar-fill"></div>
+                </div>
+                <div class="grid-outage-info" id="grid-outage-info"></div>
+            </div>
+
+            <!-- Battery Status Banner -->
+            <div class="battery-status-banner" id="battery-banner">
+                <div class="battery-banner-header">
+                    <div class="battery-banner-icon">🔋</div>
+                    <div class="battery-banner-text">
+                        <div class="battery-banner-label">Battery Level</div>
+                        <div class="battery-banner-value" id="battery-banner-value">--%</div>
+                    </div>
+                </div>
+                <div class="battery-banner-bar">
+                    <div class="battery-banner-fill" id="battery-banner-fill" style="width: 0%"></div>
+                </div>
+                <div class="battery-banner-status" id="battery-banner-status">--</div>
+            </div>
+        </div>
+        <!-- Scroll hint for fullscreen mode -->
+        <button class="scroll-hint" onclick="document.querySelector('.dashboard').scrollIntoView({behavior:'smooth'})" title="Scroll to details">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+        </button>
     </div>
 
     <div class="dashboard">
@@ -811,7 +2294,7 @@
                     <div class="value" id="pv1-power">--</div>
                     <div class="label">PV1 (W)</div>
                 </div>
-                <div class="stat">
+                <div class="stat" id="pv2-stat">
                     <div class="value" id="pv2-power">--</div>
                     <div class="label">PV2 (W)</div>
                 </div>
@@ -959,7 +2442,7 @@
         </div>
 
         <!-- Phase Daily Analytics -->
-        <div class="card">
+        <div class="card" id="phase-analytics-card">
             <div class="card-header">
                 <span class="icon">📈</span>
                 <h2>Daily Phase Analytics</h2>
@@ -984,7 +2467,7 @@
         </div>
 
         <!-- Outage History -->
-        <div class="card">
+        <div class="card" id="outage-history-card">
             <div class="card-header">
                 <span class="icon">📋</span>
                 <h2>Outage History</h2>
@@ -1020,12 +2503,172 @@
         </div>
 
         <div class="debug-section">
+            <label>Weather Mode Override</label>
+            <button class="debug-btn" onclick="debugSetWeatherMode('')">Auto (reset)</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('clear_day')">Clear Day</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('clear_night')">Clear Night</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('cloudy')">Cloudy</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('rain')">Rain</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('snow')">Snow</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('thunderstorm')">Thunderstorm</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('fog')">Fog</button>
+            <button class="debug-btn" onclick="debugSetWeatherMode('dawn_dusk')">Dawn/Dusk</button>
+            <div class="debug-info" id="debug-weather-mode">Mode: --</div>
+        </div>
+
+        <div class="debug-section">
+            <label>Battery Overlay Override</label>
+            <button class="debug-btn" onclick="debugSetBatteryOverride(-1)">Auto (reset)</button>
+            <button class="debug-btn" onclick="debugSetBatteryOverride(45)">SOC 45% (light red)</button>
+            <button class="debug-btn" onclick="debugSetBatteryOverride(25)">SOC 25% (medium red)</button>
+            <button class="debug-btn" onclick="debugSetBatteryOverride(5)">SOC 5% (heavy red)</button>
+        </div>
+
+        <div class="debug-section">
+            <label>Easter Eggs (trigger now)</label>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('shooting-star')">Shooting Star (night)</button>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('bird')">Bird (day)</button>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('firefly')">Firefly (dawn)</button>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('puddle-ripple')">Puddle Ripple (rain)</button>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('big-flake')">Big Flake (snow)</button>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('leaf')">Leaf (cloudy)</button>
+            <button class="debug-btn" onclick="debugTriggerEasterEgg('ghost')">Ghost (fog)</button>
+        </div>
+
+        <div class="debug-section" id="debug-outage-section">
+            <label>Outage Schedule Override</label>
+            <button class="debug-btn" onclick="debugOutageOverride('reset')">Auto (reset)</button>
+            <button class="debug-btn" onclick="debugOutageOverride('upcoming')">Upcoming outage in 2h</button>
+            <button class="debug-btn" onclick="debugOutageOverride('active')">Active outage, back in 1h</button>
+            <button class="debug-btn" onclick="debugOutageOverride('clear')">No outages today</button>
+            <button class="debug-btn" onclick="debugOutageOverride('unknown')">Unscheduled outage</button>
+            <div class="debug-info" id="debug-outage-mode">Mode: auto</div>
+        </div>
+
+        <div class="debug-section">
             <label>Last API Response</label>
             <div class="debug-info" id="debug-last-data">No data yet</div>
         </div>
     </div>
 
     <script>
+        // Sound toggle state
+        let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('soundEnabled', soundEnabled);
+            updateSoundIcon();
+        }
+
+        function updateSoundIcon() {
+            const onIcon = document.getElementById('sound-icon-on');
+            const offIcon = document.getElementById('sound-icon-off');
+            if (soundEnabled) {
+                onIcon.style.display = 'block';
+                offIcon.style.display = 'none';
+            } else {
+                onIcon.style.display = 'none';
+                offIcon.style.display = 'block';
+            }
+        }
+
+        // Set initial icon state
+        updateSoundIcon();
+
+        // Inverter config (populated from /api/data response)
+        var inverterConfig = null;
+        var outageScheduleIntervalId = null;
+        var outageInfoIntervalId = null;
+
+        function applyInverterConfig(config) {
+            if (!config || inverterConfig) return; // apply once
+            inverterConfig = config;
+
+            // Single-phase: hide phase cards
+            if (config.phases === 1) {
+                var phaseCard = document.getElementById('phase-card');
+                if (phaseCard) phaseCard.style.display = 'none';
+                var phaseAnalytics = document.getElementById('phase-analytics-card');
+                if (phaseAnalytics) phaseAnalytics.style.display = 'none';
+            }
+
+            // No battery: hide battery card and banner
+            if (config.has_battery === false) {
+                var batteryCard = document.getElementById('battery-card');
+                if (batteryCard) batteryCard.style.display = 'none';
+                var batteryBanner = document.getElementById('battery-banner');
+                if (batteryBanner) batteryBanner.style.display = 'none';
+            }
+
+            // Single PV string: hide PV2 stat
+            if (config.pv_strings === 1) {
+                var pv2Stat = document.getElementById('pv2-stat');
+                if (pv2Stat) pv2Stat.style.display = 'none';
+            }
+
+            // No outage schedule: hide outage UI and stop polling
+            if (config.has_outage_schedule === false) {
+                var outageInfo = document.getElementById('grid-outage-info');
+                if (outageInfo) outageInfo.style.display = 'none';
+                var outageHistory = document.getElementById('outage-history-card');
+                if (outageHistory) outageHistory.style.display = 'none';
+                var debugOutage = document.getElementById('debug-outage-section');
+                if (debugOutage) debugOutage.style.display = 'none';
+                // Stop outage polling intervals
+                if (outageScheduleIntervalId) {
+                    clearInterval(outageScheduleIntervalId);
+                    outageScheduleIntervalId = null;
+                }
+                if (outageInfoIntervalId) {
+                    clearInterval(outageInfoIntervalId);
+                    outageInfoIntervalId = null;
+                }
+            }
+        }
+
+        // Fullscreen mode
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                // Enter fullscreen
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen(); // Safari/iOS
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen(); // Safari/iOS
+                }
+            }
+        }
+
+        // Update fullscreen icon on change
+        document.addEventListener('fullscreenchange', updateFullscreenIcon);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+
+        function updateFullscreenIcon() {
+            const enterIcon = document.getElementById('fullscreen-icon-enter');
+            const exitIcon = document.getElementById('fullscreen-icon-exit');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                enterIcon.style.display = 'none';
+                exitIcon.style.display = 'block';
+                document.body.classList.add('fullscreen-mode');
+            } else {
+                enterIcon.style.display = 'block';
+                exitIcon.style.display = 'none';
+                document.body.classList.remove('fullscreen-mode');
+            }
+            // Update grid progress bar sizing on fullscreen change
+            if (typeof updateGridProgressBar === 'function') {
+                updateGridProgressBar();
+            }
+        }
+
         // Debug panel
         function toggleDebugPanel() {
             document.getElementById('debug-panel').classList.toggle('open');
@@ -1081,15 +2724,40 @@
             }
         }
 
+        // Cache female voice
+        let femaleVoice = null;
+
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            femaleVoice = voices.find(voice =>
+                voice.name.includes('Samantha') ||
+                voice.name.includes('Victoria') ||
+                voice.name.includes('Karen') ||
+                voice.name.includes('Fiona') ||
+                voice.name.includes('Female')
+            ) || voices.find(voice => voice.lang.startsWith('en'));
+        }
+
+        if ('speechSynthesis' in window) {
+            loadVoices();
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
         function speak(message) {
+            if (!soundEnabled) return;
             if ('speechSynthesis' in window) {
                 // Cancel any ongoing speech
                 window.speechSynthesis.cancel();
 
                 const utterance = new SpeechSynthesisUtterance(message);
                 utterance.rate = 0.85;
-                utterance.pitch = 0.9;
+                utterance.pitch = 1.0;
                 utterance.volume = 0.9;
+
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                }
+
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -1254,6 +2922,166 @@
             document.getElementById('voltage-l3').textContent = (data.voltage_l3 || 0).toFixed(0) + 'V';
         }
 
+        function updateBatteryBanner(data) {
+            const banner = document.getElementById('battery-banner');
+            const valueEl = document.getElementById('battery-banner-value');
+            const fillEl = document.getElementById('battery-banner-fill');
+            const statusEl = document.getElementById('battery-banner-status');
+
+            const soc = data.battery_soc || 0;
+            const current = data.battery_current || 0;
+            const power = Math.abs(data.battery_power || 0);
+
+            // Update value and fill
+            valueEl.textContent = soc + '%';
+            fillEl.style.width = soc + '%';
+
+            // Update status text
+            let statusText = '';
+            if (current > 0.5) {
+                statusText = 'Charging ' + power + 'W';
+            } else if (current < -0.5) {
+                statusText = 'Discharging ' + power + 'W';
+            } else {
+                statusText = 'Idle';
+            }
+            statusEl.textContent = statusText;
+
+            // Update banner color class
+            banner.classList.remove('battery-high', 'battery-medium', 'battery-low');
+            if (soc >= 50) {
+                banner.classList.add('battery-high');
+            } else if (soc >= 20) {
+                banner.classList.add('battery-medium');
+            } else {
+                banner.classList.add('battery-low');
+            }
+        }
+
+        function updateEnergyFlow(data) {
+            // Get elements
+            const solarComp = document.getElementById('ef-solar');
+            const batteryComp = document.getElementById('ef-battery');
+            const homeComp = document.getElementById('ef-home');
+            const gridComp = document.getElementById('ef-grid');
+            const inverterValue = document.getElementById('ef-inverter-value');
+
+            const pathSolar = document.getElementById('ef-path-solar');
+            const pathBattery = document.getElementById('ef-path-battery');
+            const pathHome = document.getElementById('ef-path-home');
+            const pathGrid = document.getElementById('ef-path-grid');
+
+            // Power values
+            const solarPower = data.pv_total_power || 0;
+            const batteryPower = data.battery_power || 0;
+            const batteryCurrent = data.battery_current || 0;
+            const loadPower = data.load_power || 0;
+            const gridPower = data.grid_power || 0;
+            const batterySoc = data.battery_soc || 0;
+            const gridVoltage = data.grid_voltage || 0;
+
+            // Calculate total through inverter
+            const inverterPower = solarPower + Math.abs(batteryPower) + Math.abs(gridPower);
+            inverterValue.textContent = loadPower + 'W';
+
+            // Update component values
+            document.getElementById('ef-home-value').textContent = loadPower + 'W';
+
+            // Reset all classes
+            solarComp.classList.remove('active', 'solar-active', 'hidden');
+            batteryComp.classList.remove('active', 'battery-charging', 'battery-discharging', 'hidden');
+            homeComp.classList.remove('active', 'load-active');
+            gridComp.classList.remove('active', 'grid-importing', 'grid-exporting', 'hidden');
+
+            pathSolar.classList.remove('active', 'solar-flow', 'hidden');
+            pathBattery.classList.remove('active', 'battery-charge-flow', 'battery-discharge-flow', 'reverse', 'hidden');
+            pathHome.classList.remove('active', 'load-flow');
+            pathGrid.classList.remove('active', 'grid-import-flow', 'grid-export-flow', 'reverse', 'hidden');
+
+            // Hide battery in energy flow if not configured
+            if (inverterConfig && inverterConfig.has_battery === false) {
+                batteryComp.classList.add('hidden');
+                pathBattery.classList.add('hidden');
+            } else {
+                document.getElementById('ef-battery-value').textContent = batterySoc + '%';
+            }
+
+            // Hide all labels initially
+            ['solar', 'battery', 'home', 'grid'].forEach(id => {
+                document.getElementById('ef-label-' + id).classList.add('hidden');
+                document.getElementById('ef-label-bg-' + id).classList.add('hidden');
+            });
+
+            // Solar: Show and animate if producing
+            if (solarPower > 10) {
+                solarComp.classList.add('active', 'solar-active');
+                pathSolar.classList.add('active', 'solar-flow');
+                document.getElementById('ef-label-solar').textContent = solarPower + 'W';
+                document.getElementById('ef-label-solar').classList.remove('hidden');
+                document.getElementById('ef-label-bg-solar').classList.remove('hidden');
+            } else if (solarPower === 0 || solarPower === undefined) {
+                // Hide solar at night
+                solarComp.classList.add('hidden');
+                pathSolar.classList.add('hidden');
+            }
+
+            // Battery: Show charging/discharging (skip if no battery)
+            if (inverterConfig && inverterConfig.has_battery === false) {
+                // Already hidden above
+            } else if (batterySoc !== undefined) {
+                if (batteryCurrent > 0.5) {
+                    // Charging
+                    batteryComp.classList.add('active', 'battery-charging');
+                    pathBattery.classList.add('active', 'battery-charge-flow');
+                    document.getElementById('ef-label-battery').textContent = Math.abs(batteryPower) + 'W';
+                    document.getElementById('ef-label-battery').classList.remove('hidden');
+                    document.getElementById('ef-label-bg-battery').classList.remove('hidden');
+                } else if (batteryCurrent < -0.5) {
+                    // Discharging
+                    batteryComp.classList.add('active', 'battery-discharging');
+                    pathBattery.classList.add('active', 'battery-discharge-flow', 'reverse');
+                    document.getElementById('ef-label-battery').textContent = Math.abs(batteryPower) + 'W';
+                    document.getElementById('ef-label-battery').classList.remove('hidden');
+                    document.getElementById('ef-label-bg-battery').classList.remove('hidden');
+                }
+            } else {
+                batteryComp.classList.add('hidden');
+                pathBattery.classList.add('hidden');
+            }
+
+            // Home/Load: Always show when consuming
+            if (loadPower > 10) {
+                homeComp.classList.add('active', 'load-active');
+                pathHome.classList.add('active', 'load-flow');
+                document.getElementById('ef-label-home').textContent = loadPower + 'W';
+                document.getElementById('ef-label-home').classList.remove('hidden');
+                document.getElementById('ef-label-bg-home').classList.remove('hidden');
+            }
+
+            // Grid: Show importing/exporting
+            if (gridVoltage > 100) {
+                if (gridPower > 50) {
+                    // Importing from grid
+                    gridComp.classList.add('active', 'grid-importing');
+                    pathGrid.classList.add('active', 'grid-import-flow', 'reverse');
+                    document.getElementById('ef-label-grid').textContent = gridPower + 'W';
+                    document.getElementById('ef-label-grid').classList.remove('hidden');
+                    document.getElementById('ef-label-bg-grid').classList.remove('hidden');
+                } else if (gridPower < -50) {
+                    // Exporting to grid
+                    gridComp.classList.add('active', 'grid-exporting');
+                    pathGrid.classList.add('active', 'grid-export-flow');
+                    document.getElementById('ef-label-grid').textContent = Math.abs(gridPower) + 'W';
+                    document.getElementById('ef-label-grid').classList.remove('hidden');
+                    document.getElementById('ef-label-bg-grid').classList.remove('hidden');
+                }
+            } else {
+                // Grid offline
+                gridComp.classList.add('hidden');
+                pathGrid.classList.add('hidden');
+            }
+        }
+
         function handleGridStateChange(isOnline, voltage) {
             if (lastGridOnline === null) {
                 // First load, just set the state
@@ -1284,27 +3112,43 @@
                     document.getElementById('debug-last-data').textContent = JSON.stringify(data, null, 2);
 
                     if (data.error) {
-                        document.getElementById('status').textContent = 'Error: ' + data.error;
-                        document.getElementById('status').className = 'status error';
+                        if (data.error === 'not yet available') {
+                            document.getElementById('status').textContent = 'Pulling data from inverter...';
+                            document.getElementById('status').className = 'status loading';
+                        } else {
+                            document.getElementById('status').textContent = 'Error: ' + data.error;
+                            document.getElementById('status').className = 'status error';
+                        }
                         return;
                     }
 
                     document.getElementById('status').textContent = 'Online - Updated ' + new Date().toLocaleTimeString();
                     document.getElementById('status').className = 'status online';
 
+                    // Apply config once when first received
+                    if (data.config) {
+                        applyInverterConfig(data.config);
+                    }
+
+                    latestInverterData = data;
+
                     // Solar
                     document.getElementById('pv-total').innerHTML = data.pv_total_power + '<span class="unit">W</span>';
                     document.getElementById('pv1-power').textContent = data.pv1_power;
-                    document.getElementById('pv2-power').textContent = data.pv2_power;
+                    if (!inverterConfig || inverterConfig.pv_strings >= 2) {
+                        document.getElementById('pv2-power').textContent = data.pv2_power;
+                    }
                     document.getElementById('daily-pv').textContent = data.daily_pv.toFixed(1);
 
                     // Battery
-                    document.getElementById('battery-soc').textContent = data.battery_soc + '%';
-                    document.getElementById('battery-fill').style.width = data.battery_soc + '%';
-                    document.getElementById('battery-voltage').textContent = data.battery_voltage.toFixed(1);
-                    document.getElementById('battery-current').textContent = data.battery_current.toFixed(1);
-                    document.getElementById('battery-power').textContent = Math.abs(data.battery_power);
-                    document.getElementById('battery-status').textContent = data.battery_status + ' (W)';
+                    if (!inverterConfig || inverterConfig.has_battery !== false) {
+                        document.getElementById('battery-soc').textContent = data.battery_soc + '%';
+                        document.getElementById('battery-fill').style.width = data.battery_soc + '%';
+                        document.getElementById('battery-voltage').textContent = data.battery_voltage.toFixed(1);
+                        document.getElementById('battery-current').textContent = data.battery_current.toFixed(1);
+                        document.getElementById('battery-power').textContent = Math.abs(data.battery_power);
+                        document.getElementById('battery-status').textContent = data.battery_status + ' (W)';
+                    }
 
                     // Grid
                     const gridPowerEl = document.getElementById('grid-power');
@@ -1333,17 +3177,19 @@
                     }
 
                     // Battery animation - charging/discharging
-                    const batteryCard = document.getElementById('battery-card');
-                    const batteryBar = document.querySelector('.battery-bar');
-                    batteryCard.classList.remove('battery-charging', 'battery-discharging');
-                    batteryBar.classList.remove('charging', 'discharging');
+                    if (!inverterConfig || inverterConfig.has_battery !== false) {
+                        const batteryCard = document.getElementById('battery-card');
+                        const batteryBar = document.querySelector('.battery-bar');
+                        batteryCard.classList.remove('battery-charging', 'battery-discharging');
+                        batteryBar.classList.remove('charging', 'discharging');
 
-                    if (data.battery_current > 1) {
-                        batteryCard.classList.add('battery-charging');
-                        batteryBar.classList.add('charging');
-                    } else if (data.battery_current < -1) {
-                        batteryCard.classList.add('battery-discharging');
-                        batteryBar.classList.add('discharging');
+                        if (data.battery_current > 1) {
+                            batteryCard.classList.add('battery-charging');
+                            batteryBar.classList.add('charging');
+                        } else if (data.battery_current < -1) {
+                            batteryCard.classList.add('battery-discharging');
+                            batteryBar.classList.add('discharging');
+                        }
                     }
 
                     // Grid animation - active when importing/exporting
@@ -1378,11 +3224,13 @@
                     const isOnline = data.grid_voltage > 100;
 
                     if (isOnline) {
-                        gridBanner.className = 'grid-status-banner online';
+                        gridBanner.classList.remove('offline');
+                        gridBanner.classList.add('online');
                         gridStatusValue.textContent = 'ONLINE';
                         gridStatusLabel.textContent = data.grid_voltage.toFixed(0) + 'V';
                     } else {
-                        gridBanner.className = 'grid-status-banner offline';
+                        gridBanner.classList.remove('online');
+                        gridBanner.classList.add('offline');
                         gridStatusValue.textContent = 'OUTAGE';
                         gridStatusLabel.textContent = 'No grid power';
                     }
@@ -1390,8 +3238,21 @@
                     // Handle grid state changes (voice + notification)
                     handleGridStateChange(isOnline, data.grid_voltage);
 
-                    // Update phase display
-                    updatePhaseDisplay(data);
+                    // Update phase display (3-phase only)
+                    if (!inverterConfig || inverterConfig.phases === 3) {
+                        updatePhaseDisplay(data);
+                    }
+
+                    // Update battery banner (prominent display)
+                    if (!inverterConfig || inverterConfig.has_battery !== false) {
+                        updateBatteryBanner(data);
+                    }
+
+                    // Update energy flow diagram
+                    updateEnergyFlow(data);
+
+                    // Update weather background
+                    updateBackground(data);
 
                 })
                 .catch(error => {
@@ -1406,11 +3267,460 @@
         loadPhaseStats();
         updateDashboard();
 
+        // Fetch weather background immediately (independent of inverter data)
+        fetchWeatherAndApply();
+
         // Update every 5 seconds
         setInterval(updateDashboard, 5000);
 
         // Refresh phase stats every 30 seconds
         setInterval(loadPhaseStats, 30000);
+
+        // ===== OUTAGE SCHEDULE =====
+        var latestInverterData = null;
+        var outageScheduleData = null;
+        var outageOverrideData = null;
+
+        function fetchOutageSchedule() {
+            if (outageOverrideData) return;
+            fetch('/api/outage_schedule')
+                .then(function(r) { return r.json(); })
+                .then(function(data) { outageScheduleData = data; updateOutageInfo(); })
+                .catch(function() { outageScheduleData = null; });
+        }
+
+        function updateOutageInfo() {
+            var el = document.getElementById('grid-outage-info');
+            var d = outageOverrideData || outageScheduleData;
+            if (!el || !d) { if (el) el.textContent = ''; return; }
+            var now = new Date();
+            var gridOnline = document.getElementById('grid-banner').classList.contains('online');
+            var useScheduleStatus = outageOverrideData ? d.status : null;
+
+            if (useScheduleStatus === 'active' || (!gridOnline && !outageOverrideData)) {
+                // Grid is off (or debug override to active) — show when it comes back
+                if (d.status === 'active' && d.end_time) {
+                    var end = new Date(d.end_time);
+                    var diff = end - now;
+                    if (diff > 0) {
+                        el.textContent = 'Back in ' + formatCountdown(diff);
+                    } else {
+                        el.textContent = 'Should be back soon';
+                    }
+                } else {
+                    // Unscheduled outage — show estimated battery remaining time
+                    var remaining = '';
+                    if (inverterConfig && inverterConfig.has_battery === false) {
+                        remaining = 'Unscheduled outage';
+                    } else if (latestInverterData) {
+                        var soc = latestInverterData.battery_soc || 0;
+                        var loadW = latestInverterData.load_power || 0;
+                        if (loadW > 0) {
+                            var capacityWh = 15000; // 15 kWh battery
+                            var remainingWh = (soc / 100) * capacityWh;
+                            var remainingMs = (remainingWh / loadW) * 3600 * 1000;
+                            remaining = '~' + formatCountdown(remainingMs) + ' remaining';
+                        } else {
+                            remaining = 'Battery: ' + soc + '%';
+                        }
+                    }
+                    el.textContent = remaining || 'Unscheduled outage';
+                }
+            } else {
+                // Grid is on — show next outage countdown
+                if (d.status === 'upcoming' && d.upcoming_windows && d.upcoming_windows.length > 0) {
+                    var start = new Date(d.upcoming_windows[0].start);
+                    var diff = start - now;
+                    if (diff > 0) {
+                        el.textContent = 'Outage in ' + formatCountdown(diff);
+                    } else {
+                        el.textContent = '';
+                    }
+                } else if (d.status === 'clear') {
+                    el.textContent = 'No outages today';
+                } else {
+                    el.textContent = '';
+                }
+            }
+        }
+
+        function formatCountdown(ms) {
+            var totalSec = Math.floor(ms / 1000);
+            var h = Math.floor(totalSec / 3600);
+            var m = Math.floor((totalSec % 3600) / 60);
+            var s = totalSec % 60;
+            if (h > 0) return h + 'h ' + m + 'm';
+            if (m > 0) return m + 'm ' + s + 's';
+            return s + 's';
+        }
+
+        fetchOutageSchedule();
+        outageScheduleIntervalId = setInterval(fetchOutageSchedule, 60000);
+        outageInfoIntervalId = setInterval(updateOutageInfo, 1000);
+
+        // ===== GRID SCHEDULE PROGRESS BAR =====
+
+        function updateGridProgressBar() {
+            var bar = document.getElementById('grid-banner-bar');
+            var fill = document.getElementById('grid-banner-bar-fill');
+            var d = outageOverrideData || outageScheduleData;
+            var gridBanner = document.getElementById('grid-banner');
+            var gridOffline = gridBanner && gridBanner.classList.contains('offline');
+
+            if (!d || (d.status !== 'active' && d.status !== 'upcoming')) {
+                bar.style.display = 'none';
+                return;
+            }
+
+            var now = new Date();
+            var progress = 0;
+
+            if (d.status === 'active' || gridOffline) {
+                // Red bar: outage progress
+                fill.className = 'grid-banner-bar-fill red';
+                if (d.start_time && d.end_time) {
+                    var start = new Date(d.start_time);
+                    var end = new Date(d.end_time);
+                    var total = end - start;
+                    var elapsed = now - start;
+                    progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
+                    if (end - now <= 0) progress = 100;
+                }
+            } else if (d.status === 'upcoming' && d.upcoming_windows && d.upcoming_windows.length > 0) {
+                // Green bar: electricity time consumed
+                fill.className = 'grid-banner-bar-fill green';
+                var outageStart = new Date(d.upcoming_windows[0].start);
+                if (d.electricity_start) {
+                    var elecStart = new Date(d.electricity_start);
+                    var total = outageStart - elecStart;
+                    var elapsed = now - elecStart;
+                    if (total > 0) {
+                        progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
+                    }
+                }
+            }
+
+            bar.style.display = 'block';
+            var remaining = Math.max(0, 100 - progress);
+            fill.style.width = remaining + '%';
+        }
+
+        setInterval(updateGridProgressBar, 1000);
+
+        // ===== WEATHER BACKGROUND =====
+
+        var WEATHER_GRADIENTS = {
+            clear_day:    'linear-gradient(135deg, #1a4a7a 0%, #2a6a9f 100%)',
+            clear_night:  'linear-gradient(135deg, #0a0a1a 0%, #12122e 100%)',
+            cloudy:       'linear-gradient(135deg, #1a2030 0%, #2a3040 100%)',
+            fog:          'linear-gradient(135deg, #181e28 0%, #252c38 100%)',
+            snow:         'linear-gradient(135deg, #1a2535 0%, #2a3a4f 100%)',
+            rain:         'linear-gradient(135deg, #151d28 0%, #1e2a38 100%)',
+            thunderstorm: 'linear-gradient(135deg, #10151e 0%, #1a2230 100%)',
+            dawn_dusk:    'linear-gradient(135deg, #2d1a1a 0%, #1a2a3a 100%)'
+        };
+
+        var currentWeatherMode = '';
+        var weatherOverrideMode = null;
+        var batteryOverrideActive = false;
+        var batteryOverrideSoc = -1;
+        var lastWeatherFetch = 0;
+        var cachedWeatherData = null;
+
+        var WMO_DESCRIPTIONS = {
+            0: ['Clear sky', '☀️'],
+            1: ['Mainly clear', '🌤️'],
+            2: ['Partly cloudy', '⛅'],
+            3: ['Overcast', '☁️'],
+            45: ['Foggy', '🌫️'],
+            48: ['Rime fog', '🌫️'],
+            51: ['Light drizzle', '🌦️'],
+            53: ['Moderate drizzle', '🌦️'],
+            55: ['Dense drizzle', '🌧️'],
+            56: ['Freezing drizzle', '🌧️'],
+            57: ['Heavy freezing drizzle', '🌧️'],
+            61: ['Slight rain', '🌦️'],
+            63: ['Moderate rain', '🌧️'],
+            65: ['Heavy rain', '🌧️'],
+            66: ['Light freezing rain', '🌧️'],
+            67: ['Heavy freezing rain', '🌧️'],
+            71: ['Slight snow', '🌨️'],
+            73: ['Moderate snow', '🌨️'],
+            75: ['Heavy snow', '❄️'],
+            77: ['Snow grains', '🌨️'],
+            80: ['Slight showers', '🌦️'],
+            81: ['Moderate showers', '🌧️'],
+            82: ['Violent showers', '🌧️'],
+            85: ['Slight snow showers', '🌨️'],
+            86: ['Heavy snow showers', '❄️'],
+            95: ['Thunderstorm', '⛈️'],
+            96: ['Thunderstorm w/ hail', '⛈️'],
+            99: ['Thunderstorm w/ heavy hail', '⛈️']
+        };
+
+        function getWeatherDescription(code) {
+            var entry = WMO_DESCRIPTIONS[code];
+            if (entry) return { text: entry[0], icon: entry[1] };
+            return { text: 'Unknown', icon: '🌡️' };
+        }
+
+        function formatTimeFromISO(isoStr) {
+            if (!isoStr) return '--';
+            var timePart = isoStr.indexOf('T') >= 0 ? isoStr.split('T')[1] : isoStr;
+            return timePart.substring(0, 5);
+        }
+
+        function updateWeatherForecastBanner(data) {
+            var desc = getWeatherDescription(data.weather_code);
+            document.getElementById('weather-forecast-icon').textContent = desc.icon;
+            document.getElementById('weather-forecast-temp').textContent =
+                data.temperature != null ? Math.round(data.temperature) + '°C' : '--';
+            document.getElementById('weather-forecast-desc').textContent = desc.text;
+            document.getElementById('weather-forecast-high').textContent =
+                data.temp_max != null ? Math.round(data.temp_max) + '°' : '--';
+            document.getElementById('weather-forecast-low').textContent =
+                data.temp_min != null ? Math.round(data.temp_min) + '°' : '--';
+            document.getElementById('weather-forecast-sunrise').textContent =
+                formatTimeFromISO(data.sunrise);
+            document.getElementById('weather-forecast-sunset').textContent =
+                formatTimeFromISO(data.sunset);
+        }
+
+        function getWeatherMode(code, sunrise, sunset) {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var currentMinutes = hours * 60 + minutes;
+
+            // Parse sunrise/sunset (format: "YYYY-MM-DDTHH:MM" or "HH:MM")
+            var sunriseMinutes = 360; // default 6:00
+            var sunsetMinutes = 1080; // default 18:00
+            if (sunrise) {
+                var st = sunrise.indexOf('T') >= 0 ? sunrise.split('T')[1] : sunrise;
+                var sp = st.split(':');
+                sunriseMinutes = parseInt(sp[0], 10) * 60 + parseInt(sp[1], 10);
+            }
+            if (sunset) {
+                var st2 = sunset.indexOf('T') >= 0 ? sunset.split('T')[1] : sunset;
+                var sp2 = st2.split(':');
+                sunsetMinutes = parseInt(sp2[0], 10) * 60 + parseInt(sp2[1], 10);
+            }
+
+            var isNight = currentMinutes < sunriseMinutes || currentMinutes > sunsetMinutes;
+
+            // Dawn/dusk: within 45 min of sunrise or sunset
+            var nearSunrise = Math.abs(currentMinutes - sunriseMinutes) <= 45;
+            var nearSunset = Math.abs(currentMinutes - sunsetMinutes) <= 45;
+            if (nearSunrise || nearSunset) {
+                // dawn_dusk takes priority over clear/cloudy but not over precipitation
+                if (code < 45) {
+                    return 'dawn_dusk';
+                }
+            }
+
+            // WMO weather code mapping
+            if (code >= 95) return 'thunderstorm';
+            if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'snow';
+            if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+            if (code === 45 || code === 48) return 'fog';
+            if (code >= 1 && code <= 3) return 'cloudy';
+
+            // Code 0: clear
+            return isNight ? 'clear_night' : 'clear_day';
+        }
+
+        function applyWeatherMode(mode) {
+            if (mode === currentWeatherMode) return;
+            currentWeatherMode = mode;
+
+            // Set body gradient
+            var gradient = WEATHER_GRADIENTS[mode];
+            if (gradient) {
+                document.body.style.background = gradient;
+            }
+
+            // Set weather-bg class for CSS animations
+            var weatherBg = document.getElementById('weather-bg');
+            weatherBg.className = 'weather-' + mode;
+
+            // Update debug display
+            var debugEl = document.getElementById('debug-weather-mode');
+            if (debugEl) {
+                debugEl.textContent = 'Mode: ' + mode + (weatherOverrideMode ? ' (override)' : ' (auto)');
+            }
+        }
+
+        function updateBatteryOverlay(data) {
+            var overlay = document.getElementById('battery-overlay');
+
+            // Skip battery overlay when no battery is configured
+            if (inverterConfig && inverterConfig.has_battery === false) {
+                overlay.style.background = 'rgba(120, 15, 15, 0)';
+                return;
+            }
+
+            // Debug override takes priority
+            if (batteryOverrideSoc >= 0) {
+                var soc = batteryOverrideSoc;
+                var opacity = Math.min(((50 - soc) / 50) * 0.5 + 0.1, 0.6);
+                if (opacity < 0) opacity = 0;
+                overlay.style.background = 'rgba(120, 15, 15, ' + opacity.toFixed(3) + ')';
+                batteryOverrideActive = true;
+                return;
+            }
+
+            var gridVoltage = data.grid_voltage || 0;
+            var soc = data.battery_soc || 0;
+
+            if (gridVoltage < 100 && soc < 50) {
+                // More aggressive: 0.1 at SOC 45%, up to 0.6 at SOC 0%
+                var opacity = Math.min(((50 - soc) / 50) * 0.5 + 0.1, 0.6);
+                overlay.style.background = 'rgba(120, 15, 15, ' + opacity.toFixed(3) + ')';
+                batteryOverrideActive = true;
+            } else {
+                overlay.style.background = 'rgba(120, 15, 15, 0)';
+                batteryOverrideActive = false;
+            }
+        }
+
+        function fetchWeatherAndApply() {
+            var now = Date.now();
+            // Throttle to once per 60 seconds
+            if (cachedWeatherData && (now - lastWeatherFetch) < 60000) {
+                var mode = weatherOverrideMode || getWeatherMode(
+                    cachedWeatherData.weather_code,
+                    cachedWeatherData.sunrise,
+                    cachedWeatherData.sunset
+                );
+                applyWeatherMode(mode);
+                updateWeatherForecastBanner(cachedWeatherData);
+                return;
+            }
+
+            fetch('/api/weather')
+                .then(function(response) { return response.json(); })
+                .then(function(weatherData) {
+                    if (weatherData.error) return;
+                    cachedWeatherData = weatherData;
+                    lastWeatherFetch = Date.now();
+                    var mode = weatherOverrideMode || getWeatherMode(
+                        weatherData.weather_code,
+                        weatherData.sunrise,
+                        weatherData.sunset
+                    );
+                    applyWeatherMode(mode);
+                    updateWeatherForecastBanner(weatherData);
+                })
+                .catch(function(err) {
+                    console.error('Weather fetch error:', err);
+                });
+        }
+
+        function updateBackground(data) {
+            fetchWeatherAndApply();
+            updateBatteryOverlay(data);
+        }
+
+        // Debug: override weather mode
+        function debugSetWeatherMode(mode) {
+            if (mode === '') {
+                weatherOverrideMode = null;
+            } else {
+                weatherOverrideMode = mode;
+            }
+            applyWeatherMode(weatherOverrideMode || currentWeatherMode);
+            // If override is set, apply immediately
+            if (weatherOverrideMode) {
+                applyWeatherMode(weatherOverrideMode);
+            } else if (cachedWeatherData) {
+                var autoMode = getWeatherMode(
+                    cachedWeatherData.weather_code,
+                    cachedWeatherData.sunrise,
+                    cachedWeatherData.sunset
+                );
+                applyWeatherMode(autoMode);
+            }
+        }
+
+        // Debug: simulate battery override
+        function debugSetBatteryOverride(soc) {
+            batteryOverrideSoc = soc;
+            var overlay = document.getElementById('battery-overlay');
+            if (soc < 0) {
+                // Reset to auto — next updateBatteryOverlay call will use real data
+                overlay.style.background = 'rgba(120, 15, 15, 0)';
+                batteryOverrideActive = false;
+                return;
+            }
+            var opacity = Math.min(((50 - soc) / 50) * 0.5 + 0.1, 0.6);
+            if (opacity < 0) opacity = 0;
+            overlay.style.background = 'rgba(120, 15, 15, ' + opacity.toFixed(3) + ')';
+        }
+
+        // Debug: simulate outage schedule override
+        function debugOutageOverride(mode) {
+            var debugEl = document.getElementById('debug-outage-mode');
+            if (mode === 'reset') {
+                outageOverrideData = null;
+                if (debugEl) debugEl.textContent = 'Mode: auto';
+                fetchOutageSchedule();
+                updateGridProgressBar();
+                return;
+            }
+            var now = new Date();
+            if (mode === 'upcoming') {
+                var outageStart = new Date(now.getTime() + 2 * 3600 * 1000);
+                var outageEnd = new Date(outageStart.getTime() + 3 * 3600 * 1000);
+                var elecStart = new Date(now.getTime() - 2 * 3600 * 1000);
+                outageOverrideData = {
+                    status: 'upcoming',
+                    upcoming_windows: [{start: outageStart.toISOString(), end: outageEnd.toISOString()}],
+                    electricity_start: elecStart.toISOString()
+                };
+            } else if (mode === 'active') {
+                var start = new Date(now.getTime() - 3 * 3600 * 1000);
+                var end = new Date(now.getTime() + 1 * 3600 * 1000);
+                outageOverrideData = {
+                    status: 'active',
+                    start_time: start.toISOString(),
+                    end_time: end.toISOString(),
+                    remaining_minutes: 60
+                };
+            } else if (mode === 'clear') {
+                outageOverrideData = {status: 'clear'};
+            } else if (mode === 'unknown') {
+                outageOverrideData = {status: 'unknown'};
+            }
+            if (debugEl) debugEl.textContent = 'Mode: ' + mode;
+            updateOutageInfo();
+            updateGridProgressBar();
+        }
+
+        // Debug: trigger easter egg by playing just the visible portion
+        var easterEggDemos = {
+            'shooting-star': 'shooting-star-demo 2s linear',
+            'bird':          'bird-fly-demo 4s linear',
+            'firefly':       'firefly-demo 4s ease-in-out',
+            'puddle-ripple': 'puddle-ripple-demo 3s ease-out',
+            'big-flake':     'big-flake-demo 5s linear',
+            'leaf':          'leaf-tumble-demo 4s linear',
+            'ghost':         'ghost-demo 5s ease-in-out'
+        };
+
+        function debugTriggerEasterEgg(name) {
+            var el = document.querySelector('.easter-egg.' + name);
+            if (!el) return;
+            el.style.visibility = 'visible';
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = easterEggDemos[name] || '';
+            el.addEventListener('animationend', function handler() {
+                el.style.animation = '';
+                el.style.visibility = '';
+                el.removeEventListener('animationend', handler);
+            });
+        }
+
     </script>
 </body>
 </html>
