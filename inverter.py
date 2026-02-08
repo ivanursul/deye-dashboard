@@ -115,22 +115,23 @@ class DeyeInverter:
                 data["battery_current"] = -to_signed(raw_current) / 100
                 time.sleep(0.05)
 
-                # Calculate SOC from voltage for LiFePO4 16S battery
-                # 56V max, 48V min
-                # Use smoothed voltage from sampler if available
+                # SOC from register 588 (BMS-reported, same as Solarman)
+                # Use smoothed median from sampler if available for outlier rejection
+                raw_soc = self.read_register(588)
+                time.sleep(0.05)
+                data["battery_soc_raw"] = raw_soc
+
                 if battery_sampler:
                     smoothed_v = battery_sampler.get_voltage()
                     if smoothed_v is not None:
                         data["battery_voltage"] = smoothed_v
-                        data["battery_soc"] = battery_sampler.get_soc()
+                    smoothed_soc = battery_sampler.get_soc()
+                    if smoothed_soc is not None:
+                        data["battery_soc"] = smoothed_soc
                     else:
-                        data["battery_soc"] = voltage_to_soc(data["battery_voltage"])
+                        data["battery_soc"] = raw_soc
                 else:
-                    data["battery_soc"] = voltage_to_soc(data["battery_voltage"])
-
-                # Store raw register value for debugging
-                data["battery_soc_raw"] = self.read_register(588)
-                time.sleep(0.05)
+                    data["battery_soc"] = raw_soc
                 data["battery_power"] = int(data["battery_voltage"] * data["battery_current"])
             else:
                 data["battery_voltage"] = 0
@@ -266,21 +267,23 @@ class BatterySampler:
         self.interval = interval
         self.buffer_size = buffer_size
         self._buffer = []
+        self._soc_buffer = []
         self._lock = threading.Lock()
         self._running = False
         self._thread = None
         self._disabled = False
 
     def _sample(self):
-        """Read battery voltage once, store if valid."""
+        """Read battery voltage and SOC once, store if valid."""
         try:
             with self.inverter.lock:
                 if not self.inverter.inverter:
                     self.inverter.connect()
-                raw = self.inverter.read_register(587)
-            voltage = raw / 100
+                raw_v = self.inverter.read_register(587)
+                raw_soc = self.inverter.read_register(588)
+            voltage = raw_v / 100
         except Exception:
-            logger.debug("BatterySampler: failed to read voltage")
+            logger.debug("BatterySampler: failed to read battery registers")
             return
 
         with self._lock:
@@ -289,7 +292,14 @@ class BatterySampler:
                 if len(self._buffer) > self.buffer_size:
                     self._buffer.pop(0)
             else:
-                logger.warning("BatterySampler: discarding implausible reading %.2fV", voltage)
+                logger.warning("BatterySampler: discarding implausible voltage %.2fV", voltage)
+
+            if 0 <= raw_soc <= 100:
+                self._soc_buffer.append(raw_soc)
+                if len(self._soc_buffer) > self.buffer_size:
+                    self._soc_buffer.pop(0)
+            else:
+                logger.warning("BatterySampler: discarding implausible SOC %d%%", raw_soc)
 
     def get_voltage(self):
         """Return averaged voltage from buffer, or None if no valid readings."""
@@ -299,11 +309,11 @@ class BatterySampler:
             return sum(self._buffer) / len(self._buffer)
 
     def get_soc(self):
-        """Return SOC based on averaged voltage, or None if no valid readings."""
-        voltage = self.get_voltage()
-        if voltage is None:
-            return None
-        return voltage_to_soc(voltage)
+        """Return SOC from register 588 using median to reject outliers."""
+        with self._lock:
+            if not self._soc_buffer:
+                return None
+            return sorted(self._soc_buffer)[len(self._soc_buffer) // 2]
 
     def _run(self):
         """Main sampling loop."""
