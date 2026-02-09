@@ -213,6 +213,7 @@ FILES=(
     "requirements.txt"
     "templates"
     "discover_inverter.py"
+    "check_inverter.py"
     ".env"
 )
 
