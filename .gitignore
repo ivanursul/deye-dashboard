@@ -9,6 +9,7 @@ env/
 .env
 
 # Data files
+logs/
 battery_reports/
 outage_history.json
 phase_stats.json
