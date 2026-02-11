@@ -4427,11 +4427,19 @@
             var powerEl = document.getElementById('generator-power');
             if (powerEl) powerEl.innerHTML = power + '<span class="unit">W</span>';
 
+            function formatDateTime(h) {
+                if (h == null || isNaN(h)) return '--';
+                var totalMinutes = Math.round(h * 60);
+                var hrs = Math.floor(totalMinutes / 60);
+                var mins = totalMinutes % 60;
+                return hrs + 'h ' + mins + 'mins';
+            }
+
             var todayEl = document.getElementById('generator-today-runtime');
-            if (todayEl) todayEl.textContent = data ? data.today_runtime_hours.toFixed(1) : '--';
+            if (todayEl) todayEl.textContent = data ? formatDateTime(data.today_runtime_hours) : '--';
 
             var monthlyEl = document.getElementById('generator-monthly-runtime');
-            if (monthlyEl) monthlyEl.textContent = data ? data.monthly_runtime_hours.toFixed(1) : '--';
+            if (monthlyEl) monthlyEl.textContent = data ? formatDateTime(data.monthly_runtime_hours) : '--';
 
             // Fuel row
             var fuelRow = document.getElementById('generator-fuel-row');
@@ -4453,7 +4461,7 @@
                 if (data.oil_change_date) {
                     oilRow.style.display = '';
                     var oilEl = document.getElementById('generator-oil-hours');
-                    if (oilEl) oilEl.textContent = data.oil_change_hours_since != null ? data.oil_change_hours_since.toFixed(1) : '--';
+                    if (oilEl) oilEl.textContent = data.oil_change_hours_since != null ? formatDateTime(data.oil_change_hours_since) : '--';
                 } else {
                     oilRow.style.display = 'none';
                 }
