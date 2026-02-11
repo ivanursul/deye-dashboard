@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deye Solar Dashboard</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2515240452499884"
+         crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -1523,6 +1525,58 @@
         .settings-btn.rollback-btn {
             border-color: rgba(251, 191, 36, 0.5);
             color: #fbbf24;
+        }
+
+        /* Ad Banner Overlay */
+        .ad-banner-overlay {
+            position: fixed;
+            bottom: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9000;
+            width: 90%;
+            max-width: 728px;
+            transition: bottom 0.5s ease-in-out;
+        }
+        .ad-banner-overlay.visible {
+            bottom: 20px;
+        }
+        .ad-banner-container {
+            position: relative;
+            background: rgba(20, 20, 40, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .ad-banner-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(100, 116, 139, 0.8);
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            transition: background 0.2s;
+        }
+        .ad-banner-close:hover {
+            background: rgba(248, 113, 113, 0.8);
+        }
+        .ad-banner-label {
+            font-size: 0.6rem;
+            color: #475569;
+            text-align: center;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .settings-btn.reset-btn {
@@ -3186,6 +3240,20 @@
             <label>Configuration</label>
             <button class="settings-btn" onclick="openConfigEditor()">Edit Configuration</button>
             <button class="settings-btn reset-btn" style="margin-top: 8px;" onclick="resetConfiguration()">Factory Reset</button>
+        </div>
+    </div>
+
+    <!-- Ad Banner Overlay -->
+    <div class="ad-banner-overlay" id="ad-banner-overlay">
+        <div class="ad-banner-container">
+            <button class="ad-banner-close" onclick="dismissAdBanner()">&times;</button>
+            <div class="ad-banner-label">Advertisement</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2515240452499884"
+                 data-ad-slot=""
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
         </div>
     </div>
 
@@ -4860,6 +4928,46 @@
 
         // Check first run on page load
         checkFirstRun();
+
+        // --- Periodic Ad Banner ---
+        var AD_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+        var AD_DISPLAY_MS = 15 * 1000;        // 15 seconds visible
+        var adBannerTimer = null;
+        var adDismissTimer = null;
+        var adInitialized = false;
+
+        function showAdBanner() {
+            var overlay = document.getElementById('ad-banner-overlay');
+            if (!overlay) return;
+
+            // Push a new ad each time
+            if (window.adsbygoogle) {
+                if (!adInitialized) {
+                    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+                    adInitialized = true;
+                }
+            }
+
+            overlay.classList.add('visible');
+
+            // Auto-dismiss after 15 seconds
+            clearTimeout(adDismissTimer);
+            adDismissTimer = setTimeout(function() {
+                dismissAdBanner();
+            }, AD_DISPLAY_MS);
+        }
+
+        function dismissAdBanner() {
+            var overlay = document.getElementById('ad-banner-overlay');
+            if (overlay) overlay.classList.remove('visible');
+            clearTimeout(adDismissTimer);
+        }
+
+        // Start the periodic ad cycle after initial delay
+        setTimeout(function() {
+            showAdBanner();
+            adBannerTimer = setInterval(showAdBanner, AD_INTERVAL_MS);
+        }, AD_INTERVAL_MS);
 
     </script>
 </body>
