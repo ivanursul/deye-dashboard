@@ -144,17 +144,6 @@ class UpdateManager:
             issues.append("Not a git repository")
             return False, issues
 
-        # Check no uncommitted tracked changes
-        try:
-            result = subprocess.run(
-                ["git", "status", "--porcelain", "-uno"],
-                capture_output=True, text=True, timeout=10,
-            )
-            if result.stdout.strip():
-                issues.append("Uncommitted changes to tracked files")
-        except Exception:
-            issues.append("Failed to check git status")
-
         # Check venv exists
         venv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "venv")
         if not os.path.isdir(venv_path):
@@ -212,9 +201,9 @@ class UpdateManager:
 
             self._set_status("updating", f"Checking out {tag}...")
 
-            # Checkout the tag
+            # Checkout the tag (force to discard local changes)
             result = subprocess.run(
-                ["git", "checkout", tag],
+                ["git", "checkout", "-f", tag],
                 capture_output=True, text=True, timeout=30,
             )
             if result.returncode != 0:

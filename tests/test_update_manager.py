@@ -100,24 +100,15 @@ class TestUpdateManager:
 
     def test_preflight_ok(self):
         mgr = UpdateManager()
-        results = {
-            0: MagicMock(returncode=0),  # git --version
-            1: MagicMock(returncode=0),  # git rev-parse
-            2: MagicMock(returncode=0, stdout=""),  # git status
-            3: MagicMock(returncode=0),  # sudo systemctl
-        }
-        call_idx = [0]
 
         def side_effect(*args, **kwargs):
             cmd = args[0]
             if cmd[0] == "git" and cmd[1] == "--version":
-                return results[0]
+                return MagicMock(returncode=0)
             elif cmd[0] == "git" and cmd[1] == "rev-parse":
-                return results[1]
-            elif cmd[0] == "git" and cmd[1] == "status":
-                return results[2]
+                return MagicMock(returncode=0)
             elif cmd[0] == "sudo":
-                return results[3]
+                return MagicMock(returncode=0)
             return MagicMock(returncode=0)
 
         with patch("update_manager.subprocess.run", side_effect=side_effect), \
@@ -133,28 +124,6 @@ class TestUpdateManager:
             ok, issues = mgr.preflight_check()
         assert ok is False
         assert "git is not installed" in issues
-
-    def test_preflight_uncommitted_changes(self):
-        mgr = UpdateManager()
-
-        def side_effect(*args, **kwargs):
-            cmd = args[0]
-            if cmd[0] == "git" and cmd[1] == "--version":
-                return MagicMock(returncode=0)
-            elif cmd[0] == "git" and cmd[1] == "rev-parse":
-                return MagicMock(returncode=0)
-            elif cmd[0] == "git" and cmd[1] == "status":
-                return MagicMock(returncode=0, stdout=" M app.py\n")
-            elif cmd[0] == "sudo":
-                return MagicMock(returncode=0)
-            return MagicMock(returncode=0)
-
-        with patch("update_manager.subprocess.run", side_effect=side_effect), \
-             patch("update_manager.os.path.isdir", return_value=True):
-            ok, issues = mgr.preflight_check()
-
-        assert ok is False
-        assert any("Uncommitted" in i for i in issues)
 
     def test_requirements_changed(self):
         mgr = UpdateManager()
