@@ -3984,10 +3984,10 @@
                 }
             }
 
-            // Hide section if not a git repo
+            // Show message if not a git repo
             const section = document.getElementById('settings-ota-section');
             if (section && data.is_git_repo === false) {
-                section.style.display = 'none';
+                section.innerHTML = '<label>OTA Updates</label><div style="color: #64748b; font-size: 0.8rem;">Not available (not a git repository)</div>';
             }
         }
 
