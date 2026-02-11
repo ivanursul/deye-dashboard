@@ -9,6 +9,7 @@ from flask import Flask, render_template, jsonify, request
 from inverter import DeyeInverter, BatterySampler, InverterConfig
 from telegram_bot import TelegramBot
 from outage_providers import OutageSchedulePoller, create_outage_provider
+from update_manager import get_current_version, UpdatePoller, UpdateManager
 from datetime import datetime, date
 import os
 import json
@@ -256,6 +257,13 @@ weather_poller.start()
 inverter_poller = InverterPoller(inverter, battery_sampler,
                                 cache_file=INVERTER_CACHE_FILE)
 inverter_poller.start()
+
+# OTA update system
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "ivanursul/deye-dashboard")
+UPDATE_CHECK_INTERVAL = int(os.environ.get("UPDATE_CHECK_INTERVAL", "600"))
+update_poller = UpdatePoller(repo=GITHUB_REPO, poll_interval=UPDATE_CHECK_INTERVAL)
+update_manager = UpdateManager()
+update_poller.start()
 
 # Phase data collection
 last_sample_time = None
@@ -705,6 +713,64 @@ def get_generator():
     return jsonify(result)
 
 
+@app.route("/api/update/status")
+def get_update_status():
+    """Get current version, update availability, and manager state."""
+    data = update_poller.data or {}
+    mgr_status = update_manager.status
+    return jsonify({
+        "current_version": data.get("current_version", get_current_version()),
+        "latest_tag": data.get("latest_tag"),
+        "update_available": data.get("update_available", False),
+        "available_tags": data.get("available_tags", []),
+        "last_checked": data.get("last_checked"),
+        "manager_state": mgr_status["state"],
+        "manager_message": mgr_status["message"],
+        "manager_error": mgr_status["error"],
+        "is_git_repo": update_manager.is_git_repo(),
+    })
+
+
+@app.route("/api/update/check", methods=["POST"])
+def check_for_updates():
+    """Force an immediate check for updates."""
+    update_poller.force_check()
+    return jsonify({"status": "ok"})
+
+
+@app.route("/api/update/apply", methods=["POST"])
+def apply_update():
+    """Apply an update to the specified tag."""
+    data = request.json or {}
+    tag = data.get("tag")
+    if not tag:
+        return jsonify({"status": "error", "error": "Missing 'tag' parameter"}), 400
+    ok = update_manager.update_to_tag(tag)
+    if not ok:
+        return jsonify({"status": "error", "error": "Update already in progress"}), 409
+    return jsonify({"status": "ok", "message": f"Update to {tag} started"})
+
+
+@app.route("/api/update/rollback", methods=["POST"])
+def rollback_update():
+    """Rollback to the specified tag (same mechanism as update)."""
+    data = request.json or {}
+    tag = data.get("tag")
+    if not tag:
+        return jsonify({"status": "error", "error": "Missing 'tag' parameter"}), 400
+    ok = update_manager.update_to_tag(tag)
+    if not ok:
+        return jsonify({"status": "error", "error": "Rollback already in progress"}), 409
+    return jsonify({"status": "ok", "message": f"Rollback to {tag} started"})
+
+
+@app.route("/api/update/preflight")
+def update_preflight():
+    """Run preflight checks before update."""
+    ok, issues = update_manager.preflight_check()
+    return jsonify({"ok": ok, "issues": issues})
+
+
 def start_telegram_bot():
     """Start the Telegram bot in a background thread if configured."""
     if os.environ.get("TELEGRAM_ENABLED", "true").lower() == "false":
@@ -747,6 +813,7 @@ if __name__ == "__main__":
 
     # Log startup configuration
     logger.info("=== Deye Dashboard starting ===")
+    logger.info("Version: %s", get_current_version())
     logger.info("INVERTER_IP=%s  LOGGER_SERIAL=%s", INVERTER_IP, LOGGER_SERIAL)
     logger.info("Inverter config: %s", inverter_config.to_dict())
     logger.info("Generator: has_generator=%s fuel_rate=%s oil_change=%s",

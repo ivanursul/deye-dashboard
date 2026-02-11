@@ -1147,7 +1147,7 @@
 
         body.fullscreen-mode .grid-status-banner,
         body.fullscreen-mode .battery-status-banner,
-        body.fullscreen-mode .generator-status-banner {
+        body.fullscreen-mode.has-generator .generator-status-banner {
             align-self: stretch;
             max-width: 500px;
             width: 100%;
@@ -1472,6 +1472,82 @@
             border-radius: 4px;
             word-break: break-all;
         }
+
+        .debug-version-badge {
+            display: inline-block;
+            font-family: monospace;
+            font-size: 0.8rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .debug-update-available {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .debug-update-available .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: otaPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes otaPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .debug-select {
+            width: 100%;
+            padding: 6px 8px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .debug-btn.update-btn {
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+        }
+
+        .debug-btn.update-btn:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .debug-btn.rollback-btn {
+            border-color: rgba(251, 191, 36, 0.5);
+            color: #fbbf24;
+        }
+
+        .debug-btn.rollback-btn:hover {
+            background: rgba(251, 191, 36, 0.2);
+        }
+
+        .update-status-text {
+            font-size: 0.75rem;
+            font-family: monospace;
+            padding: 4px 0;
+        }
+
+        .update-status-text.state-updating { color: #60a5fa; }
+        .update-status-text.state-restarting { color: #fbbf24; }
+        .update-status-text.state-error { color: #f87171; }
+        .update-status-text.state-idle { color: #64748b; }
 
         /* Energy Flow Diagram Styles */
         .energy-flow-container {
@@ -2711,6 +2787,32 @@
             <button class="debug-btn" onclick="debugGeneratorOverride(5000)">Generator ON 5000W</button>
             <button class="debug-btn" onclick="debugGeneratorOverride(0)">Generator OFF</button>
             <div class="debug-info" id="debug-generator-mode">Mode: auto</div>
+        </div>
+
+        <div class="debug-section" id="debug-ota-section">
+            <label>OTA Updates</label>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span style="color: #94a3b8; font-size: 0.8rem;">Version:</span>
+                <span class="debug-version-badge" id="ota-version">...</span>
+            </div>
+            <div class="debug-update-available" id="ota-update-notice" style="display: none;">
+                <span class="pulse-dot"></span>
+                <span id="ota-update-text">Update available</span>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+                <button class="debug-btn" onclick="otaCheckNow()">Check for Updates</button>
+                <button class="debug-btn update-btn" id="ota-apply-btn" style="display: none;" onclick="otaApplyUpdate()">Update</button>
+            </div>
+            <div style="margin-top: 8px;">
+                <label style="font-size: 0.75rem; color: #94a3b8;">Rollback to:</label>
+                <div style="display: flex; gap: 6px; margin-top: 4px;">
+                    <select class="debug-select" id="ota-rollback-select">
+                        <option value="">Select tag...</option>
+                    </select>
+                    <button class="debug-btn rollback-btn" onclick="otaRollback()">Rollback</button>
+                </div>
+            </div>
+            <div class="update-status-text state-idle" id="ota-status">Idle</div>
         </div>
 
         <div class="debug-section">
@@ -4074,6 +4176,153 @@
                 el.removeEventListener('animationend', handler);
             });
         }
+
+        // === OTA Update Functions ===
+        let otaStatusInterval = null;
+
+        function fetchOtaStatus() {
+            fetch('/api/update/status')
+                .then(r => r.json())
+                .then(data => updateOtaUI(data))
+                .catch(() => {});
+        }
+
+        function updateOtaUI(data) {
+            // Version badge
+            const versionEl = document.getElementById('ota-version');
+            if (versionEl) versionEl.textContent = data.current_version || 'unknown';
+
+            // Update available notice
+            const noticeEl = document.getElementById('ota-update-notice');
+            const applyBtn = document.getElementById('ota-apply-btn');
+            const updateTextEl = document.getElementById('ota-update-text');
+            if (data.update_available && data.latest_tag) {
+                if (noticeEl) noticeEl.style.display = 'flex';
+                if (updateTextEl) updateTextEl.textContent = 'Update available: ' + data.latest_tag;
+                if (applyBtn) {
+                    applyBtn.style.display = '';
+                    applyBtn.textContent = 'Update to ' + data.latest_tag;
+                    applyBtn.setAttribute('data-tag', data.latest_tag);
+                }
+            } else {
+                if (noticeEl) noticeEl.style.display = 'none';
+                if (applyBtn) applyBtn.style.display = 'none';
+            }
+
+            // Rollback dropdown
+            const selectEl = document.getElementById('ota-rollback-select');
+            if (selectEl && data.available_tags) {
+                const currentVal = selectEl.value;
+                selectEl.innerHTML = '<option value="">Select tag...</option>';
+                data.available_tags.forEach(function(tag) {
+                    const opt = document.createElement('option');
+                    opt.value = tag;
+                    opt.textContent = tag;
+                    if (tag === data.current_version) opt.textContent += ' (current)';
+                    selectEl.appendChild(opt);
+                });
+                if (currentVal) selectEl.value = currentVal;
+            }
+
+            // Status display
+            const statusEl = document.getElementById('ota-status');
+            if (statusEl) {
+                const state = data.manager_state || 'idle';
+                statusEl.className = 'update-status-text state-' + state;
+                if (state === 'error') {
+                    statusEl.textContent = 'Error: ' + (data.manager_error || 'unknown');
+                } else if (state === 'updating' || state === 'restarting') {
+                    statusEl.textContent = data.manager_message || state;
+                } else {
+                    statusEl.textContent = data.last_checked
+                        ? 'Last checked: ' + new Date(data.last_checked).toLocaleTimeString()
+                        : 'Not checked yet';
+                }
+            }
+
+            // Hide section if not a git repo
+            const section = document.getElementById('debug-ota-section');
+            if (section && data.is_git_repo === false) {
+                section.style.display = 'none';
+            }
+        }
+
+        function otaCheckNow() {
+            fetch('/api/update/check', { method: 'POST' })
+                .then(() => setTimeout(fetchOtaStatus, 2000))
+                .catch(() => {});
+        }
+
+        function otaApplyUpdate() {
+            const btn = document.getElementById('ota-apply-btn');
+            const tag = btn ? btn.getAttribute('data-tag') : null;
+            if (!tag) return;
+            if (!confirm('Update to ' + tag + '? The server will restart.')) return;
+
+            fetch('/api/update/preflight')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) {
+                        alert('Preflight failed:\n- ' + data.issues.join('\n- '));
+                        return;
+                    }
+                    fetch('/api/update/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tag: tag }),
+                    }).then(() => startOtaStatusPolling());
+                })
+                .catch(e => alert('Error: ' + e));
+        }
+
+        function otaRollback() {
+            const selectEl = document.getElementById('ota-rollback-select');
+            const tag = selectEl ? selectEl.value : '';
+            if (!tag) { alert('Select a tag first'); return; }
+            if (!confirm('Rollback to ' + tag + '? The server will restart.')) return;
+
+            fetch('/api/update/preflight')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok) {
+                        alert('Preflight failed:\n- ' + data.issues.join('\n- '));
+                        return;
+                    }
+                    fetch('/api/update/rollback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tag: tag }),
+                    }).then(() => startOtaStatusPolling());
+                })
+                .catch(e => alert('Error: ' + e));
+        }
+
+        function startOtaStatusPolling() {
+            if (otaStatusInterval) clearInterval(otaStatusInterval);
+            otaStatusInterval = setInterval(function() {
+                fetch('/api/update/status')
+                    .then(r => r.json())
+                    .then(data => {
+                        updateOtaUI(data);
+                        if (data.manager_state === 'idle' || data.manager_state === 'error') {
+                            clearInterval(otaStatusInterval);
+                            otaStatusInterval = null;
+                        }
+                    })
+                    .catch(() => {
+                        // Server likely restarting, keep polling
+                        const statusEl = document.getElementById('ota-status');
+                        if (statusEl) {
+                            statusEl.className = 'update-status-text state-restarting';
+                            statusEl.textContent = 'Server restarting...';
+                        }
+                    });
+            }, 2000);
+        }
+
+        // Initial OTA fetch and periodic refresh
+        fetchOtaStatus();
+        setInterval(fetchOtaStatus, 300000);
 
     </script>
 </body>

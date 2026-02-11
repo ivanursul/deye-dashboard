@@ -17,6 +17,7 @@ phase_history.json
 bot_state.json
 inverter_cache.json
 grid_daily_log.json
+generator_log.json
 
 # Personal/sensitive files
 *.HEIC

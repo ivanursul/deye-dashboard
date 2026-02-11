@@ -105,6 +105,7 @@ FILES=(
     "telegram_bot.py"
     "poems.py"
     "outage_providers"
+    "update_manager.py"
     "requirements.txt"
     "templates"
     "discover_inverter.py"
@@ -126,6 +127,47 @@ for file in "${FILES[@]}"; do
         echo "Warning: $file not found, skipping..."
     fi
 done
+
+# Setup git repository for OTA updates
+echo -e "${YELLOW}Setting up git for OTA updates...${NC}"
+ssh ${REMOTE_USER}@${REMOTE_HOST} << ENDSSH
+cd ${REMOTE_DIR}
+
+# Install git if not present
+if ! command -v git &> /dev/null; then
+    echo "Installing git..."
+    sudo apt-get update -qq && sudo apt-get install -y -qq git
+fi
+
+# Initialize git repo if not present
+if [ ! -d ".git" ]; then
+    echo "Initializing git repository..."
+    git init
+    git remote add origin https://github.com/${GITHUB_REPO:-ivanursul/deye-dashboard}.git
+    git fetch --tags
+    LATEST_TAG=\$(git tag --sort=-v:refname | head -1)
+    if [ -n "\$LATEST_TAG" ]; then
+        echo "Checking out \$LATEST_TAG..."
+        git checkout "\$LATEST_TAG"
+    fi
+else
+    echo "Fetching latest tags..."
+    git fetch --tags
+fi
+ENDSSH
+
+# Setup sudoers for passwordless systemctl restart
+echo -e "${YELLOW}Setting up sudoers for OTA restart...${NC}"
+ssh ${REMOTE_USER}@${REMOTE_HOST} << ENDSSH
+SUDOERS_FILE="/etc/sudoers.d/deye-dashboard"
+if [ ! -f "\$SUDOERS_FILE" ]; then
+    echo "${REMOTE_USER} ALL=(ALL) NOPASSWD: /bin/systemctl restart ${SERVICE_NAME}, /bin/systemctl is-active ${SERVICE_NAME}" | sudo tee "\$SUDOERS_FILE" > /dev/null
+    sudo chmod 440 "\$SUDOERS_FILE"
+    echo "Sudoers entry created for passwordless service restart"
+else
+    echo "Sudoers entry already exists"
+fi
+ENDSSH
 
 # Setup Python environment and install dependencies
 echo -e "${YELLOW}Setting up Python environment...${NC}"
