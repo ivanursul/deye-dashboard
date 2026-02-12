@@ -4,6 +4,80 @@ A web dashboard for monitoring Deye solar inverters in real-time. Supports both 
 
 ![Dashboard Preview](docs/preview.png)
 
+## How It Works (for non-technical users)
+
+This project is a **home energy dashboard** — a web page that shows you what your solar panels are producing, how much battery you have left, whether you're using grid power, and when the next power outage is scheduled.
+
+### What you need
+
+1. **A Deye solar inverter** with a Solarman Wi-Fi logger stick (the small antenna plugged into your inverter). Most Deye hybrid inverters come with one.
+
+2. **A small home computer** that runs 24/7 on your local network. The best option is a **Raspberry Pi Zero 2W** (~$15) or any Raspberry Pi model. It uses very little power and sits quietly on your network. Any Linux computer (old laptop, mini PC, etc.) works too.
+
+3. **Your home Wi-Fi network** — both the inverter's logger stick and the Raspberry Pi must be connected to the same network.
+
+### How it works
+
+```
+Solar Panels → Deye Inverter → Wi-Fi Logger Stick
+                                       ↓
+                              Your Home Network
+                                       ↓
+                              Raspberry Pi (runs this dashboard)
+                                       ↓
+                              Your Phone / Tablet / PC (opens the dashboard in a browser)
+```
+
+The Raspberry Pi reads data from your inverter every 60 seconds over your local network. It then shows this data on a web page you can open from any device in your home — phone, tablet, or computer — by going to the Raspberry Pi's address in a browser (e.g. `http://192.168.1.50:8080`).
+
+### Setup overview
+
+1. **Get a Raspberry Pi** and install Raspberry Pi OS on it (many YouTube tutorials available)
+2. **Connect it to your Wi-Fi** and make sure it has a fixed IP address
+3. **Run the deploy script** from your computer — it copies everything to the Pi and starts the dashboard automatically
+4. **Open the dashboard** in your browser — on first launch, a setup wizard will guide you through connecting to your inverter
+
+You don't need to be a programmer, but you should be comfortable with basic computer tasks like connecting to Wi-Fi and following step-by-step instructions. If you have a tech-savvy friend or family member, ask them to help with the initial setup — after that, the dashboard runs on its own.
+
+---
+
+## Як це працює (для нетехнічних користувачів)
+
+Цей проект — це **домашня енергетична панель** — веб-сторінка, яка показує, скільки електроенергії виробляють ваші сонячні панелі, який заряд акумулятора, чи використовуєте ви електрику з мережі, та коли заплановане наступне відключення.
+
+### Що вам потрібно
+
+1. **Сонячний інвертор Deye** з Wi-Fi логером Solarman (маленька антена, підключена до інвертора). Більшість гібридних інверторів Deye комплектуються таким.
+
+2. **Невеликий домашній комп'ютер**, який працює постійно у вашій локальній мережі. Найкращий варіант — **Raspberry Pi Zero 2W** (~$15) або будь-яка модель Raspberry Pi. Він споживає дуже мало енергії та тихо працює у вашій мережі. Будь-який Linux-комп'ютер (старий ноутбук, міні-ПК тощо) також підійде.
+
+3. **Ваша домашня Wi-Fi мережа** — і логер інвертора, і Raspberry Pi мають бути підключені до однієї мережі.
+
+### Як це працює
+
+```
+Сонячні панелі → Інвертор Deye → Wi-Fi логер
+                                       ↓
+                              Ваша домашня мережа
+                                       ↓
+                              Raspberry Pi (запускає цю панель)
+                                       ↓
+                              Ваш телефон / планшет / ПК (відкриває панель у браузері)
+```
+
+Raspberry Pi зчитує дані з вашого інвертора кожні 60 секунд через локальну мережу. Потім він відображає ці дані на веб-сторінці, яку можна відкрити з будь-якого пристрою у вашому домі — телефону, планшета чи комп'ютера — перейшовши за адресою Raspberry Pi у браузері (наприклад, `http://192.168.1.50:8080`).
+
+### Огляд налаштування
+
+1. **Придбайте Raspberry Pi** та встановіть на нього Raspberry Pi OS (багато відеоінструкцій на YouTube)
+2. **Підключіть його до Wi-Fi** та переконайтесь, що він має фіксовану IP-адресу
+3. **Запустіть скрипт розгортання** з вашого комп'ютера — він скопіює все на Pi та автоматично запустить панель
+4. **Відкрийте панель** у браузері — при першому запуску майстер налаштування допоможе вам підключитися до інвертора
+
+Вам не потрібно бути програмістом, але ви повинні вміти виконувати базові завдання на комп'ютері, такі як підключення до Wi-Fi та слідування покроковим інструкціям. Якщо у вас є технічно обізнаний друг чи родич, попросіть їх допомогти з початковим налаштуванням — після цього панель працює самостійно.
+
+---
+
 ## Features
 
 - **Real-time monitoring** — solar production, battery SOC, grid power, and load consumption
