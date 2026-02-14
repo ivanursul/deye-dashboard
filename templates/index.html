@@ -601,6 +601,7 @@
             border: 1px solid rgba(251, 191, 36, 0.3);
             border-radius: 8px;
             margin-bottom: 20px;
+            position: relative;
         }
 
         .notification-setup.hidden {
@@ -615,6 +616,25 @@
             color: #000;
             cursor: pointer;
             font-weight: 500;
+        }
+
+        .notification-setup .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            padding: 4px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-setup .close-btn:hover {
+            opacity: 1;
         }
 
         /* ===== ANIMATIONS ===== */
@@ -2683,6 +2703,7 @@
 
     <!-- Notification Permission Request -->
     <div class="notification-setup" id="notification-setup">
+        <button class="close-btn" onclick="closeNotificationSetup()" aria-label="Close">✕</button>
         <span>Enable notifications to get alerts during power outages</span>
         <button onclick="requestNotificationPermission()">Enable Alerts</button>
     </div>
@@ -3359,6 +3380,8 @@
                 document.getElementById('notification-setup').classList.add('hidden');
             } else if (Notification.permission === 'denied') {
                 document.getElementById('notification-setup').classList.add('hidden');
+            } else if (sessionStorage.getItem('notificationSetupDismissed') === 'true') {
+                document.getElementById('notification-setup').classList.add('hidden');
             }
         } else {
             document.getElementById('notification-setup').classList.add('hidden');
@@ -3374,6 +3397,12 @@
                     }
                 });
             }
+        }
+
+        function closeNotificationSetup() {
+            document.getElementById('notification-setup').classList.add('hidden');
+            // Remember the dismissal for this session
+            sessionStorage.setItem('notificationSetupDismissed', 'true');
         }
 
 
