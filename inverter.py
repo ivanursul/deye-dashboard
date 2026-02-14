@@ -131,6 +131,16 @@ class DeyeInverter:
                 time.sleep(0.05)
                 data["battery_soc_raw"] = raw_soc
 
+                data["battery_capacity"] = self.read_register(107)
+                time.sleep(0.05)
+                data["battery_nominal_voltage"] = self.read_register(236) / 100
+                time.sleep(0.05)
+                data["battery_discharge_percent"] = self.read_register(237)
+                time.sleep(0.05)
+
+                available_capacity = (data["battery_capacity"] / 100) * data["battery_discharge_percent"]
+                data["battery_max_available_capacity_wh"] = available_capacity * data["battery_nominal_voltage"]
+
                 if battery_sampler:
                     smoothed_v = battery_sampler.get_voltage()
                     if smoothed_v is not None:

@@ -3997,7 +3997,7 @@
                         var soc = latestInverterData.battery_soc || 0;
                         var loadW = latestInverterData.load_power || 0;
                         if (loadW > 0) {
-                            var capacityWh = 15000; // 15 kWh battery
+                            var capacityWh = latestInverterData.battery_max_available_capacity_wh;
                             var remainingWh = (soc / 100) * capacityWh;
                             var remainingMs = (remainingWh / loadW) * 3600 * 1000;
                             remaining = '~' + formatCountdown(remainingMs) + ' remaining';
