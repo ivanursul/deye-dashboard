@@ -2864,11 +2864,11 @@
             <div class="stats-row">
                 <div class="stat">
                     <div class="value" id="generator-today-runtime">--</div>
-                    <div class="label">Today Runtime (h)</div>
+                    <div class="label">Today Runtime</div>
                 </div>
                 <div class="stat">
                     <div class="value" id="generator-monthly-runtime">--</div>
-                    <div class="label">Monthly Runtime (h)</div>
+                    <div class="label">Monthly Runtime</div>
                 </div>
             </div>
             <div class="stats-row" id="generator-fuel-row" style="display: none; margin-top: 16px;">
@@ -2883,7 +2883,7 @@
             </div>
             <div class="stat" id="generator-oil-row" style="display: none; margin-top: 16px;">
                 <div class="value" id="generator-oil-hours">--</div>
-                <div class="label">Hours Since Oil Change</div>
+                <div class="label">Since Oil Change</div>
             </div>
         </div>
 
@@ -3442,6 +3442,17 @@
             return date.toLocaleString();
         }
 
+        function formatGeneratorDuration(decimalHours) {
+            if (decimalHours === null || decimalHours === undefined || isNaN(decimalHours)) return '--';
+            var totalMinutes = Math.round(decimalHours * 60);
+            var h = Math.floor(totalMinutes / 60);
+            var m = totalMinutes % 60;
+            if (h > 0) {
+                return h + 'h ' + m + 'mins';
+            } else {
+                return m + 'mins';
+            }
+        }
         async function recordOutageEvent(type, voltage) {
             const timestamp = new Date().toISOString();
             await fetch('/api/outages', {
@@ -4314,7 +4325,7 @@
                 banner.classList.add('generator-running');
                 valueEl.textContent = power + 'W';
                 var hours = data ? data.today_runtime_hours : 0;
-                statusEl.textContent = 'Runtime: ' + hours.toFixed(1) + 'h today';
+                statusEl.textContent = 'Runtime: ' + formatGeneratorDuration(hours) + ' today';
             } else {
                 banner.classList.add('generator-off');
                 valueEl.textContent = 'OFF';
@@ -4348,10 +4359,10 @@
             if (powerEl) powerEl.innerHTML = power + '<span class="unit">W</span>';
 
             var todayEl = document.getElementById('generator-today-runtime');
-            if (todayEl) todayEl.textContent = data ? data.today_runtime_hours.toFixed(1) : '--';
+            if (todayEl) todayEl.textContent = data ? formatGeneratorDuration(data.today_runtime_hours) : '--';
 
             var monthlyEl = document.getElementById('generator-monthly-runtime');
-            if (monthlyEl) monthlyEl.textContent = data ? data.monthly_runtime_hours.toFixed(1) : '--';
+            if (monthlyEl) monthlyEl.textContent = data ? formatGeneratorDuration(data.monthly_runtime_hours) : '--';
 
             // Fuel row
             var fuelRow = document.getElementById('generator-fuel-row');
@@ -4373,7 +4384,7 @@
                 if (data.oil_change_date) {
                     oilRow.style.display = '';
                     var oilEl = document.getElementById('generator-oil-hours');
-                    if (oilEl) oilEl.textContent = data.oil_change_hours_since != null ? data.oil_change_hours_since.toFixed(1) : '--';
+                    if (oilEl) oilEl.textContent = data.oil_change_hours_since != null ? formatGeneratorDuration(data.oil_change_hours_since) : '--';
                 } else {
                     oilRow.style.display = 'none';
                 }
