@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing and development
+tests/
+.pytest_cache
+.coverage
+htmlcov/
+
+# Documentation
+docs/
+README.md
+CLAUDE.md
+
+# Scripts
+deploy.sh
+deploy_local.sh
+download_logs.sh
+*.sh
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Misc
+*.md
+setup.py
+test_*.py
+check_inverter.py
+debug_connection.py
+discover_inverter.py
+scan_battery.py
+scan_phases.py
+scan_registers.py
+

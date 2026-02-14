@@ -121,6 +121,61 @@ python app.py
 
 Open http://localhost:8080 in your browser.
 
+## Docker
+
+You can also run the dashboard using Docker, which is the recommended approach for production deployments.
+
+### Using Docker Compose (Recommended)
+
+```bash
+# Create and configure .env file
+cp .env.example .env
+# Edit .env with your inverter IP, logger serial, etc.
+
+# Build and start the dashboard
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the dashboard
+docker-compose down
+```
+
+### Using Docker CLI
+
+```bash
+# Build the image
+docker build -t deye-dashboard:latest .
+
+# Run the container
+docker run -d \
+  --name deye-dashboard \
+  -p 8080:8080 \
+  --env-file .env \
+  -v $(pwd)/data:/app/data \
+  --restart unless-stopped \
+  deye-dashboard:latest
+```
+
+### Data Persistence
+
+The container mounts a `data` volume at `/app/data` for persistent storage of:
+- Outage history (`outage_history.json`)
+- Phase statistics (`phase_stats.json`)
+- Phase history (`phase_history.json`)
+
+### Health Checks
+
+The container includes a built-in health check that pings the `/api/data` endpoint every 30 seconds. Check the health status with:
+
+```bash
+docker ps  # Shows health status
+docker inspect deye-dashboard --format='{{.State.Health.Status}}'
+```
+
+For detailed Docker configuration options, troubleshooting, and production deployment tips, see [DOCKER.md](DOCKER.md).
+
 ## Configuration
 
 All configuration is done via environment variables, typically set in a `.env` file. See `.env.example` for a complete template.

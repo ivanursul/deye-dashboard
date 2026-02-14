@@ -1,0 +1,61 @@
+services:
+  deye-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deye-dashboard
+    ports:
+      - "8080:8080"
+    environment:
+      # Required: Inverter configuration
+      INVERTER_IP: ${INVERTER_IP:-192.168.1.100}
+      LOGGER_SERIAL: ${LOGGER_SERIAL:-1234567890}
+
+      # Optional: Inverter capabilities (auto-detected if not set)
+      # INVERTER_PHASES: ${INVERTER_PHASES:-}
+      # INVERTER_HAS_BATTERY: ${INVERTER_HAS_BATTERY:-}
+      # INVERTER_PV_STRINGS: ${INVERTER_PV_STRINGS:-}
+      # INVERTER_HAS_GENERATOR: ${INVERTER_HAS_GENERATOR:-false}
+
+      # Weather configuration
+      WEATHER_LATITUDE: ${WEATHER_LATITUDE:-50.4501}
+      WEATHER_LONGITUDE: ${WEATHER_LONGITUDE:-30.5234}
+
+      # Outage schedule provider
+      OUTAGE_PROVIDER: ${OUTAGE_PROVIDER:-none}
+      OUTAGE_GROUP: ${OUTAGE_GROUP:-1.1}
+      # OUTAGE_REGION_ID: ${OUTAGE_REGION_ID:-}
+      # OUTAGE_DSO_ID: ${OUTAGE_DSO_ID:-}
+
+      # Telegram bot (optional)
+      TELEGRAM_ENABLED: ${TELEGRAM_ENABLED:-false}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_ALLOWED_USERS: ${TELEGRAM_ALLOWED_USERS:-}
+      TELEGRAM_PUBLIC: ${TELEGRAM_PUBLIC:-false}
+
+      # Data file paths
+      OUTAGE_HISTORY_FILE: ${OUTAGE_HISTORY_FILE:-outage_history.json}
+      PHASE_STATS_FILE: ${PHASE_STATS_FILE:-phase_stats.json}
+      PHASE_HISTORY_FILE: ${PHASE_HISTORY_FILE:-phase_history.json}
+
+    volumes:
+      # Mount for persistent data files
+      - ./data:/app/data
+
+    restart: unless-stopped
+
+    # Network configuration
+    networks:
+      - deye-network
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  deye-network:
+    driver: bridge
+
