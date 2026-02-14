@@ -382,6 +382,25 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .sortable-ghost {
+            opacity: 0.3;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sortable-chosen {
+            background: rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transform: scale(1.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 10;
+        }
+
+        @media (hover: none) {
+            .sortable-chosen {
+                border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            }
+        }
+
         .card.full-width {
             grid-column: 1 / -1;
         }
@@ -395,6 +414,11 @@
 
         .card-header .icon {
             font-size: 1.5rem;
+            cursor: grab;
+        }
+
+        .card-header .icon:active {
+            cursor: grabbing;
         }
 
         .card-header h2 {
@@ -2570,6 +2594,8 @@
         }
 
     </style>
+    <!-- SortableJS for dashboard cards -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
     <!-- Weather Background -->
@@ -2772,7 +2798,7 @@
 
     <div class="dashboard">
         <!-- Solar Production -->
-        <div class="card" id="solar-card">
+        <div class="card" id="solar-card" data-id="solar-card">
             <div class="card-header">
                 <span class="icon">☀️</span>
                 <h2>Solar Production</h2>
@@ -2798,7 +2824,7 @@
         </div>
 
         <!-- Battery -->
-        <div class="card" id="battery-card">
+        <div class="card" id="battery-card" data-id="battery-card">
             <div class="card-header">
                 <span class="icon">🔋</span>
                 <h2>Battery</h2>
@@ -2826,7 +2852,7 @@
         </div>
 
         <!-- Grid -->
-        <div class="card" id="grid-card">
+        <div class="card" id="grid-card" data-id="grid-card">
             <div class="card-header">
                 <span class="icon">⚡</span>
                 <h2>Grid</h2>
@@ -2852,7 +2878,7 @@
         </div>
 
         <!-- Generator -->
-        <div class="card" id="generator-card">
+        <div class="card" id="generator-card" data-id="generator-card">
             <div class="card-header">
                 <span class="icon">&#9981;</span>
                 <h2>Generator</h2>
@@ -2888,7 +2914,7 @@
         </div>
 
         <!-- Load/Consumption -->
-        <div class="card" id="load-card">
+        <div class="card" id="load-card" data-id="load-card">
             <div class="card-header">
                 <span class="icon">🏠</span>
                 <h2>Home Consumption</h2>
@@ -2904,7 +2930,7 @@
         </div>
 
         <!-- Temperature -->
-        <div class="card" id="temp-card">
+        <div class="card" id="temp-card" data-id="temp-card">
             <div class="card-header">
                 <span class="icon">🌡️</span>
                 <h2>Temperature</h2>
@@ -2922,7 +2948,7 @@
         </div>
 
         <!-- Phase Load (Real-time) -->
-        <div class="card" id="phase-card">
+        <div class="card" id="phase-card" data-id="phase-card">
             <div class="card-header">
                 <span class="icon">📊</span>
                 <h2>Load per Phase</h2>
@@ -2970,7 +2996,7 @@
         </div>
 
         <!-- Phase Daily Analytics -->
-        <div class="card" id="phase-analytics-card">
+        <div class="card" id="phase-analytics-card" data-id="phase-analytics-card">
             <div class="card-header">
                 <span class="icon">📈</span>
                 <h2>Daily Phase Analytics</h2>
@@ -2995,7 +3021,7 @@
         </div>
 
         <!-- Outage History -->
-        <div class="card" id="outage-history-card">
+        <div class="card" id="outage-history-card" data-id="outage-history-card">
             <div class="card-header">
                 <span class="icon">📋</span>
                 <h2>Outage History</h2>
@@ -4874,9 +4900,35 @@
                 });
         }
 
-        // Check first run on page load
+        // Check the first run on page load.
         checkFirstRun();
 
+        // Initialize Sortable for dashboard cards.
+        (function() {
+            const el = document.querySelector('.dashboard');
+            if (el && typeof Sortable !== 'undefined') {
+                Sortable.create(el, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    handle: '.card-header',
+                    dataIdAttr: 'data-id',
+                    store: {
+                        get: function (sortable) {
+                            var order = localStorage.getItem('dashboard-cards-order');
+                            return order ? JSON.parse(order) : [];
+                        },
+                        set: function (sortable) {
+                            var order = JSON.stringify(sortable.toArray());
+                            localStorage.setItem('dashboard-cards-order', order);
+                        },
+                    },
+                });
+            } else if (el) {
+                console.warn('SortableJS not loaded yet, retrying...');
+                setTimeout(arguments.callee, 100);
+            }
+        })();
     </script>
 </body>
 </html>
